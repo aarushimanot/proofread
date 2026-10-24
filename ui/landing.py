@@ -4,6 +4,8 @@ does; the "Start checking" button opens the app itself.
 """
 import streamlit as st
 
+from ui.common import logo_img
+
 FEATURES = [
     ("Extract the claim", "Paste a social media post. Proofread strips the noise and finds the factual "
                           "claim, or every claim, worth checking."),
@@ -24,22 +26,22 @@ def page():
     <style>
       [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"] {display: none;}
       .block-container {max-width: 960px; padding-top: 5.5rem;}
-      .pr-hero-title {font-size: 4.2rem; font-weight: 700; letter-spacing: -0.045em; line-height: 1;
-                      color: #111827; margin: 0;}
-      .pr-hero-mark {display: inline-block; width: 18px; height: 18px; border-radius: 4px; background: #4f46e5;
-                     margin-right: 18px; vertical-align: 0.55rem;}
-      .pr-hero-tagline {font-size: 1.45rem; color: #4b5563; margin: 18px 0 10px; letter-spacing: -0.01em;}
-      .pr-hero-sub {font-size: 1.02rem; color: #6b7280; max-width: 640px; line-height: 1.6; margin-bottom: 28px;}
-      .pr-feature {border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 20px 18px; min-height: 235px;
-                   background: #fafafa;}
-      .pr-feature-num {font-size: .78rem; font-weight: 600; color: #4f46e5; letter-spacing: .08em;}
-      .pr-feature-title {font-size: 1.05rem; font-weight: 600; color: #111827; margin: 6px 0 6px;}
-      .pr-feature-body {font-size: .92rem; color: #6b7280; line-height: 1.55;}
-      .pr-foot {color: #9ca3af; font-size: .85rem; margin-top: 44px; border-top: 1px solid #f0f0f0; padding-top: 16px;}
+      /* "inherit" + opacity, so the page reads well in both the light and the dark theme */
+      .pr-hero-title {display: flex; align-items: center; gap: 22px; font-size: 4.2rem; font-weight: 700;
+                      letter-spacing: -0.045em; line-height: 1; color: inherit; margin: 0;}
+      .pr-hero-tagline {font-size: 1.45rem; opacity: .8; margin: 20px 0 10px; letter-spacing: -0.01em;}
+      .pr-hero-sub {font-size: 1.02rem; opacity: .65; max-width: 640px; line-height: 1.6; margin-bottom: 28px;}
+      .pr-feature {border: 1px solid rgba(128,128,128,.25); border-radius: 12px; padding: 20px 20px 18px;
+                   min-height: 235px; background: rgba(128,128,128,.06);}
+      .pr-feature-num {font-size: .78rem; font-weight: 600; color: #7c6cf2; letter-spacing: .08em;}
+      .pr-feature-title {font-size: 1.05rem; font-weight: 600; color: inherit; margin: 6px 0 6px;}
+      .pr-feature-body {font-size: .92rem; opacity: .7; line-height: 1.55;}
+      .pr-foot {opacity: .55; font-size: .85rem; margin-top: 44px; border-top: 1px solid rgba(128,128,128,.25);
+                padding-top: 16px;}
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<p class="pr-hero-title"><span class="pr-hero-mark"></span>Proofread</p>'
+    st.markdown(f'<div class="pr-hero-title">{logo_img(76)}<span>Proofread</span></div>'
                 '<p class="pr-hero-tagline">Read it for proof before you share it.</p>'
                 '<p class="pr-hero-sub">An AI-assisted claim review aid for student journalists. Check a claim from '
                 'social media against trusted sources, see exactly why, and decide for yourself.</p>',

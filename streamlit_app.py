@@ -18,10 +18,10 @@ for path in (ROOT, ROOT / "backend"):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
-st.set_page_config(page_title="Proofread", page_icon=":material/fact_check:", layout="wide")
+st.set_page_config(page_title="Proofread", page_icon=str(ROOT / "assets" / "favicon.png"), layout="wide")
 
 from ui import about, check, dashboard, evaluation, landing, library  # noqa: E402  (after set_page_config)
-from ui.common import backfill_test_claims, get_pipeline  # noqa: E402
+from ui.common import backfill_test_claims, get_pipeline, logo_img  # noqa: E402
 
 # Typography: Inter (falls back to the system font when offline). Icon fonts are left alone,
 # otherwise Streamlit's arrows and menu icons would turn into words.
@@ -38,11 +38,11 @@ st.markdown("""
   h1, h2, h3, h4 {font-weight: 600 !important; letter-spacing: -0.015em;}
   h2 {font-size: 1.75rem !important;}
   h3 {font-size: 1.25rem !important;}
-  .pr-brand {font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; color: #111827;}
-  .pr-brand::before {content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 10px;
-                     border-radius: 2px; background: #4f46e5; vertical-align: middle;}
-  .pr-tagline {color: #6b7280; font-size: 0.95rem; margin: 2px 0 14px;}
-  mark {color: inherit;}
+  /* Colours below use "inherit" + opacity so they work in both the light and the dark theme. */
+  .pr-brand {display: flex; align-items: center; gap: 12px; font-size: 1.6rem; font-weight: 700;
+             letter-spacing: -0.03em; color: inherit;}
+  .pr-tagline {opacity: .65; font-size: 0.95rem; margin: 4px 0 14px;}
+  mark {color: #111827;}   /* highlighted words sit on a yellow background in both themes */
 </style>""", unsafe_allow_html=True)
 
 APP_PAGES = [
@@ -61,8 +61,8 @@ if not st.session_state.get("entered"):
     get_pipeline()      # warm up the models while the visitor reads the landing page
 else:
     # Header + the persistent human-in-the-loop banner shown on every page.
-    st.markdown('<div class="pr-brand">Proofread</div><div class="pr-tagline">Read it for proof before you share it.</div>',
-                unsafe_allow_html=True)
+    st.markdown(f'<div class="pr-brand">{logo_img(34)}<span>Proofread</span></div>'
+                '<div class="pr-tagline">Read it for proof before you share it.</div>', unsafe_allow_html=True)
     st.warning("**Decision-support tool for human reviewers.** Verdicts are based only on the curated reference set "
                "and may be wrong. Absence of evidence ≠ false.")
     pages = st.navigation(APP_PAGES)   # register the pages first, so links straight to a page work

@@ -2,6 +2,7 @@
 Shared pieces for the Streamlit pages: the cached pipeline, verdict styling and the
 evidence card. Every page imports from here so the app looks and behaves consistently.
 """
+import base64
 import html
 import re
 import sys
@@ -19,6 +20,14 @@ from app.aggregator import CONFLICTING, CONTRADICTED, INSUFFICIENT, SUPPORTED, V
 from app.pipeline import ProofreadPipeline  # noqa: E402
 
 ALL_TOPICS = "__all__"
+LOGO_SVG = Path(__file__).resolve().parent.parent / "assets" / "logo.svg"
+
+
+def logo_img(size: int) -> str:
+    """The Proofread logo as an inline <img> (a coloured tile, so it reads on light and dark themes)."""
+    data = base64.b64encode(LOGO_SVG.read_bytes()).decode()
+    return (f'<img src="data:image/svg+xml;base64,{data}" width="{size}" height="{size}" alt="" '
+            f'style="display:inline-block;vertical-align:middle;border-radius:{size // 4}px">')
 
 # Verdict colours follow the status palette (good / critical / neutral / warning) and always
 # come with the verdict written out, so the colour never carries the meaning on its own.
