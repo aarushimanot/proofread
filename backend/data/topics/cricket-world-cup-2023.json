@@ -1,0 +1,103 @@
+{
+  "id": "cricket-world-cup-2023",
+  "name": "Cricket World Cup 2023",
+  "description": "The 2023 ICC Men's Cricket World Cup held in India.",
+  "passages": [
+    {
+      "id": "CWC-01",
+      "title": "2023 Cricket World Cup overview",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2023_Cricket_World_Cup",
+      "date": "2023-11-19",
+      "text": "The 2023 ICC Men's Cricket World Cup was the 13th edition of the tournament. It was held in India from 5 October to 19 November 2023, and ten teams took part. It was the first time India hosted the tournament on its own."
+    },
+    {
+      "id": "CWC-02",
+      "title": "The final in Ahmedabad",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2023_Cricket_World_Cup_final",
+      "date": "2023-11-19",
+      "text": "The final was played on 19 November 2023 at the Narendra Modi Stadium in Ahmedabad. Australia beat India by six wickets to win the tournament."
+    },
+    {
+      "id": "CWC-03",
+      "title": "Scores in the final",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2023_Cricket_World_Cup_final",
+      "date": "2023-11-19",
+      "text": "In the final, India batted first and were bowled out for 240. Australia reached 241 for 4, with Travis Head scoring 137. Head was named player of the match."
+    },
+    {
+      "id": "CWC-04",
+      "title": "Australia's sixth title",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2023_Cricket_World_Cup",
+      "date": "2023-11-19",
+      "text": "The win gave Australia a record sixth Cricket World Cup title. Their earlier titles came in 1987, 1999, 2003, 2007 and 2015."
+    },
+    {
+      "id": "CWC-05",
+      "title": "Virat Kohli, player of the tournament",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Virat_Kohli",
+      "date": "2023-11-19",
+      "text": "Virat Kohli was named player of the tournament. He scored 765 runs, the most ever by a batter in a single Cricket World Cup."
+    },
+    {
+      "id": "CWC-06",
+      "title": "Kohli's 50th ODI century",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Virat_Kohli",
+      "date": "2023-11-15",
+      "text": "In the semi-final against New Zealand at the Wankhede Stadium in Mumbai on 15 November 2023, Virat Kohli scored his 50th ODI century. He became the first batter to reach 50 ODI centuries, passing Sachin Tendulkar's record of 49."
+    },
+    {
+      "id": "CWC-07",
+      "title": "Mohammed Shami, leading wicket-taker",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Mohammed_Shami",
+      "date": "2023-11-19",
+      "text": "India's Mohammed Shami was the leading wicket-taker of the tournament with 24 wickets. His best figures were 7 for 57 in the semi-final against New Zealand."
+    },
+    {
+      "id": "CWC-08",
+      "title": "Glenn Maxwell's double century",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Glenn_Maxwell",
+      "date": "2023-11-07",
+      "text": "On 7 November 2023 in Mumbai, Australia's Glenn Maxwell scored 201 not out against Afghanistan. Australia won the match by three wickets."
+    },
+    {
+      "id": "CWC-09",
+      "title": "Fastest World Cup century",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Glenn_Maxwell",
+      "date": "2023-10-25",
+      "text": "Against the Netherlands in Delhi on 25 October 2023, Glenn Maxwell reached a century in 40 balls. It was the fastest century in Cricket World Cup history."
+    },
+    {
+      "id": "CWC-10",
+      "title": "India's unbeaten league stage",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2023_Cricket_World_Cup",
+      "date": "2023-11-12",
+      "text": "India won all nine of their league matches and then beat New Zealand by 70 runs in the first semi-final. The final was their only defeat of the tournament."
+    },
+    {
+      "id": "CWC-11",
+      "title": "Australia's semi-final win",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2023_Cricket_World_Cup",
+      "date": "2023-11-16",
+      "text": "In the second semi-final, played at Eden Gardens in Kolkata on 16 November 2023, Australia beat South Africa by three wickets."
+    },
+    {
+      "id": "CWC-12",
+      "title": "The opening match",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2023_Cricket_World_Cup",
+      "date": "2023-10-05",
+      "text": "The tournament opened on 5 October 2023 in Ahmedabad, where New Zealand beat defending champions England by nine wickets."
+    }
+  ]
+}

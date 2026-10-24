@@ -1,0 +1,103 @@
+{
+  "id": "constitution-of-india",
+  "name": "Constitution of India",
+  "description": "How India's Constitution was drafted, adopted and amended.",
+  "passages": [
+    {
+      "id": "COI-01",
+      "title": "Constitution of India overview",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Constitution_of_India",
+      "date": "1950-01-26",
+      "text": "The Constitution of India is the supreme law of India. It was adopted by the Constituent Assembly on 26 November 1949 and came into effect on 26 January 1950. It is the longest written national constitution in the world."
+    },
+    {
+      "id": "COI-02",
+      "title": "Republic Day",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Republic_Day_(India)",
+      "date": "1950-01-26",
+      "text": "India celebrates Republic Day every year on 26 January, the day the Constitution came into effect in 1950. The date was chosen because the Indian National Congress had declared Purna Swaraj, or complete independence, on 26 January 1930."
+    },
+    {
+      "id": "COI-03",
+      "title": "Constitution Day (Samvidhan Divas)",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Constitution_Day_(India)",
+      "date": "2015-11-26",
+      "text": "Since 2015, India has observed 26 November as Constitution Day to mark the adoption of the Constitution in 1949. The day was declared by the Government of India in 2015, the 125th birth anniversary year of B. R. Ambedkar."
+    },
+    {
+      "id": "COI-04",
+      "title": "The Constituent Assembly",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Constituent_Assembly_of_India",
+      "date": "1946-12-09",
+      "text": "The Constituent Assembly of India, which wrote the Constitution, held its first session on 9 December 1946. Rajendra Prasad was elected as the President of the Constituent Assembly."
+    },
+    {
+      "id": "COI-05",
+      "title": "The Drafting Committee and B. R. Ambedkar",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/B._R._Ambedkar",
+      "date": "1947-08-29",
+      "text": "The Drafting Committee of the Constitution was set up on 29 August 1947 and was chaired by B. R. Ambedkar. Ambedkar is widely regarded as the chief architect of the Indian Constitution."
+    },
+    {
+      "id": "COI-06",
+      "title": "Time taken to write the Constitution",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Constituent_Assembly_of_India",
+      "date": "1949-11-26",
+      "text": "The Constituent Assembly took 2 years, 11 months and 18 days to complete the Constitution. Its members sat for a total of 114 days during this period."
+    },
+    {
+      "id": "COI-07",
+      "title": "Structure of the original Constitution",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Constitution_of_India",
+      "date": "1950-01-26",
+      "text": "When it was adopted, the Constitution of India contained a preamble, 395 articles in 22 parts, and 8 schedules. It has since been amended more than 100 times."
+    },
+    {
+      "id": "COI-08",
+      "title": "The handwritten original",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Constitution_of_India",
+      "date": "1950-01-24",
+      "text": "The original Constitution was handwritten in calligraphy by Prem Behari Narain Raizada. Its pages were decorated by artists from Shantiniketan, including Nandalal Bose. Members of the Constituent Assembly signed the Constitution on 24 January 1950."
+    },
+    {
+      "id": "COI-09",
+      "title": "The Preamble and the 42nd Amendment",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Preamble_to_the_Constitution_of_India",
+      "date": "1976-12-18",
+      "text": "The Preamble describes India as a sovereign, socialist, secular, democratic republic. The words \"socialist\" and \"secular\" were not in the original Preamble; they were added by the 42nd Amendment in 1976."
+    },
+    {
+      "id": "COI-10",
+      "title": "Fundamental Rights",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Fundamental_rights_in_India",
+      "date": "1950-01-26",
+      "text": "Part III of the Constitution guarantees Fundamental Rights to citizens, including equality before the law and freedom of speech and expression. Article 21 protects the right to life and personal liberty."
+    },
+    {
+      "id": "COI-11",
+      "title": "Fundamental Duties",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Fundamental_Rights,_Directive_Principles_and_Fundamental_Duties_of_India",
+      "date": "1976-12-18",
+      "text": "Fundamental Duties were added to the Constitution by the 42nd Amendment in 1976, in Article 51A. There were originally ten Fundamental Duties, and an eleventh was added in 2002."
+    },
+    {
+      "id": "COI-12",
+      "title": "Parliamentary system of government",
+      "source": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Parliament_of_India",
+      "date": "1950-01-26",
+      "text": "The Constitution establishes a parliamentary system of government. The Parliament of India consists of the President and two houses, the Lok Sabha and the Rajya Sabha."
+    }
+  ]
+}
