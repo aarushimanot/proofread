@@ -1,15 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 64" role="img" aria-label="Proofread">
   <defs>
-    <linearGradient id="pr-w" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#6366f1"/>
-      <stop offset="1" stop-color="#8b5cf6"/>
+    <linearGradient id="prw-tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="prw-handle" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#e11d48"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#pr-w)"/>
-  <circle cx="28" cy="28" r="13.5" fill="none" stroke="#fff" stroke-width="5"/>
-  <path d="M38 38 L48.5 48.5" stroke="#fff" stroke-width="6.5" stroke-linecap="round"/>
-  <path d="M21.5 28.5 L26.2 33 L34.5 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- indigo text reads on both the light and the dark sidebar -->
-  <text x="80" y="45" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
-        font-size="36" font-weight="700" letter-spacing="-1.2" fill="#7c6cf2">Proofread</text>
+  <rect width="64" height="64" rx="16" fill="url(#prw-tile)"/>
+  <line x1="27.00" y1="14.00" x2="27.00" y2="8.00" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="27.00" cy="8.00" r="2.3" fill="#fff"/><line x1="15.74" y1="20.50" x2="10.55" y2="17.50" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="10.55" cy="17.50" r="2.3" fill="#fff"/><line x1="15.74" y1="33.50" x2="10.55" y2="36.50" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="10.55" cy="36.50" r="2.3" fill="#fff"/><line x1="38.26" y1="20.50" x2="43.45" y2="17.50" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="43.45" cy="17.50" r="2.3" fill="#fff"/><line x1="23.64" y1="39.56" x2="22.08" y2="45.35" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="22.08" cy="45.35" r="2.3" fill="#fff"/>
+  <line x1="36.5" y1="36.5" x2="49.5" y2="49.5" stroke="url(#prw-handle)" stroke-width="7.5" stroke-linecap="round"/>
+  <line x1="35.28" y1="35.28" x2="37.7" y2="37.7" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="27.0" cy="27.0" r="11.5" fill="rgba(255,255,255,0.16)" stroke="#fff" stroke-width="3.4"/>
+  <polyline points="21.0,27.5 25.3,31.8 33.0,23.5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="80" y="45" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="36" font-weight="700" letter-spacing="-1.2" fill="#7c6cf2">Proofread</text>
 </svg>
