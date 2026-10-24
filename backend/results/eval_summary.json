@@ -5,7 +5,7 @@
     "kind": "hand-written",
     "n": 14
   },
-  "generated": "2026-10-24T20:51:35+00:00",
+  "generated": "2026-10-24T21:36:45+00:00",
   "device": "mps",
   "settings": {
     "relevance_threshold": 0.45,
@@ -133,7 +133,7 @@
     "exact": 13
   },
   "speed": {
-    "mean_seconds": 0.12185714285714287
+    "mean_seconds": 0.11150000000000002
   },
   "systems": {
     "Keyword match": {
@@ -413,7 +413,7 @@
       "extracted_claim": "Chandrayaan-3 was launched on 14 July 2023 from Sriharikota.",
       "extraction": "exact",
       "predicted_e2e": "SUPPORTED",
-      "seconds": 0.235,
+      "seconds": 0.184,
       "note": "Straightforward launch date and site; directly stated in CY3-02."
     },
     {
@@ -432,7 +432,7 @@
       "extracted_claim": "The Vikram lander touched down near the Moon's south pole on 23 August 2023.",
       "extraction": "exact",
       "predicted_e2e": "SUPPORTED",
-      "seconds": 0.17,
+      "seconds": 0.136,
       "note": "Landing date and region; CY3-05. 'Touched down' paraphrases 'soft-landed'."
     },
     {
@@ -470,7 +470,7 @@
       "extracted_claim": "India became the first country to land near the lunar south pole.",
       "extraction": "exact",
       "predicted_e2e": "SUPPORTED",
-      "seconds": 0.153,
+      "seconds": 0.148,
       "note": "First near the south pole; CY3-06."
     },
     {
@@ -489,7 +489,7 @@
       "extracted_claim": "Chandrayaan-3 landed on the Moon on 15 August 2023, right on Independence Day.",
       "extraction": "contains",
       "predicted_e2e": "CONTRADICTED",
-      "seconds": 0.141,
+      "seconds": 0.138,
       "note": "Wrong date: the landing was on 23 August 2023 (CY3-05)."
     },
     {
@@ -508,7 +508,7 @@
       "extracted_claim": "The rover deployed by Chandrayaan-3 was named Pragati.",
       "extraction": "exact",
       "predicted_e2e": "CONFLICTING",
-      "seconds": 0.057,
+      "seconds": 0.056,
       "note": "Wrong rover name: the rover is Pragyan (CY3-01, CY3-08)."
     },
     {
@@ -527,7 +527,7 @@
       "extracted_claim": "Chandrayaan-3 landed near the Moon's north pole.",
       "extraction": "exact",
       "predicted_e2e": "CONTRADICTED",
-      "seconds": 0.148,
+      "seconds": 0.137,
       "note": "Wrong location: the landing was near the lunar south pole (CY3-05, CY3-06)."
     },
     {
@@ -546,7 +546,7 @@
       "extracted_claim": "The Pragyan rover has four wheels and carried two instruments.",
       "extraction": "exact",
       "predicted_e2e": "CONTRADICTED",
-      "seconds": 0.123,
+      "seconds": 0.116,
       "note": "Wrong number: Pragyan is six-wheeled (CY3-08). Half of the claim (two instruments) is correct, which makes this harder."
     },
     {
@@ -565,7 +565,7 @@
       "extracted_claim": "The Chandrayaan-3 mission cost less than the budget of the movie Interstellar.",
       "extraction": "exact",
       "predicted_e2e": "INSUFFICIENT_EVIDENCE",
-      "seconds": 0.061,
+      "seconds": 0.059,
       "note": "Plausible and widely shared, but no passage mentions the mission cost or the movie."
     },
     {
@@ -584,7 +584,7 @@
       "extracted_claim": "The Pragyan rover found water ice at the Chandrayaan-3 landing site.",
       "extraction": "exact",
       "predicted_e2e": "INSUFFICIENT_EVIDENCE",
-      "seconds": 0.12,
+      "seconds": 0.112,
       "note": "The corpus lists the elements detected but says nothing about water ice, so the correct answer is insufficient evidence, not contradicted."
     },
     {
@@ -603,7 +603,7 @@
       "extracted_claim": "The Chandrayaan-3 mission was led by project director P. Veeramuthuvel.",
       "extraction": "exact",
       "predicted_e2e": "INSUFFICIENT_EVIDENCE",
-      "seconds": 0.124,
+      "seconds": 0.112,
       "note": "The project director is not mentioned anywhere in the corpus."
     },
     {
@@ -622,7 +622,7 @@
       "extracted_claim": "Over 8 million people watched the Chandrayaan-3 landing live on YouTube.",
       "extraction": "exact",
       "predicted_e2e": "INSUFFICIENT_EVIDENCE",
-      "seconds": 0.144,
+      "seconds": 0.138,
       "note": "Viewership figures are not covered by any passage, even though landing passages are topically similar."
     },
     {
@@ -641,7 +641,7 @@
       "extracted_claim": "ISRO's Moon rover drove more than a hundred metres before going to sleep.",
       "extraction": "exact",
       "predicted_e2e": "SUPPORTED",
-      "seconds": 0.055,
+      "seconds": 0.053,
       "note": "Tricky paraphrase: 'more than a hundred metres' and 'going to sleep' paraphrase 'over 100 metres' and 'put into sleep mode' in CY3-12, and the rover is not named."
     },
     {
@@ -660,7 +660,7 @@
       "extracted_claim": "India became the third country to soft-land on the Moon.",
       "extraction": "exact",
       "predicted_e2e": "CONTRADICTED",
-      "seconds": 0.054,
+      "seconds": 0.051,
       "note": "Tricky subtle number change: India was the fourth country (CY3-06). NLI models often miss ordinal changes."
     }
   ]

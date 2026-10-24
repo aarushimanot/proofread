@@ -93,15 +93,16 @@ Everything runs locally with open-source models. There are no paid APIs and no A
 
 ```
 proofread/
-  start.sh                 ONE command: setup + run (also: eval, setup, web, dev)
+  start.sh                 ONE command: setup + run (also: eval, setup)
   streamlit_app.py         the Streamlit app: header, banner, page navigation
   ui/                      one file per page + shared pieces
-    check.py  library.py  dashboard.py  evaluation.py  about.py
+    landing.py  check.py  library.py  dashboard.py  evaluation.py  about.py
     common.py              cached pipeline, verdict colours, evidence card, review form
     charts.py              chart helpers (Altair)
   requirements.txt         packages for deployment (Linux, CPU)
   Dockerfile               container for Hugging Face Spaces (backup host)
   .streamlit/config.toml   theme
+  assets/                  logo files (logo.svg, wordmark.svg, favicon.png) and make_logo.py that draws them
   backend/
     app/pipeline.py        loads models once; verify(), check_post(); switches for ablations
     app/extractor.py       claim extraction (one claim, or every claim)
@@ -114,14 +115,13 @@ proofread/
     app/claimgen.py        automatic test-claim generation for any topic
     app/db.py              SQLite database
     app/config.py          every threshold in one place
-    app/main.py            optional FastAPI server (used by the older React website)
     data/topics/*.json     built-in topics and their passages
     data/test_claims.json  the 14 labelled test claims
     data/multi_claim_tests.json  4 multi-claim test posts
     evaluate.py            evaluation (baselines, ablations, safety, multi-claim)
+    download_models.py     pre-downloads the AI models (used by the Dockerfile)
     results/               eval_summary.json, eval_results.csv, eval_report.md
     requirements.txt       packages for local use (Mac)
-  frontend/                older React website (still works via ./start.sh web, lacks the newer features)
 ```
 
 ## 4. Pipeline, step by step
@@ -167,9 +167,8 @@ That's it. The script installs anything missing (Python 3.11 via `uv` if needed,
 | command | what it does |
 |---|---|
 | `./start.sh` | run the Streamlit app on http://localhost:8501 |
-| `./start.sh eval` | run the evaluation (writes `backend/results/`) |
+| `./start.sh eval` | run the evaluation (writes `backend/results/`); `./start.sh eval --topic <id>` evaluates a topic's test claims |
 | `./start.sh setup` | install only |
-| `./start.sh web` | the older React + FastAPI website on http://localhost:8000 (no multi-claim mode, key sentences, dashboard or evaluation page) |
 
 All data lives in one SQLite file, `backend/data/proofread.db`, created automatically. It needs no database server. Built-in topics are synced from `backend/data/topics/*.json` at every start; your own topics, passages, reviews and check history are stored only in the database.
 

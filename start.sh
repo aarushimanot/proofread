@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 # Proofread: one command to set up and run the whole project.
 #
-#   ./start.sh          set up anything missing and open the Streamlit app on http://localhost:8501
-#   ./start.sh eval     run the evaluation (writes backend/results/)
+#   ./start.sh          set up anything missing and open the app on http://localhost:8501
+#   ./start.sh eval     run the evaluation (writes backend/results/); add --topic <id> for a topic's test claims
 #   ./start.sh setup    only install, don't start
-#   ./start.sh web      the older React + FastAPI website on http://localhost:8000 (fewer features)
-#   ./start.sh dev      developer mode for that React website (:5173 + :8000)
 #
 # Every setup step is skipped if it has already been done, so re-running is fast.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND="$ROOT/backend"
-FRONTEND="$ROOT/frontend"
 VENV="$BACKEND/.venv"
-PORT="${PROOFREAD_PORT:-8000}"
-ST_PORT="${PROOFREAD_STREAMLIT_PORT:-8501}"
+PORT="${PROOFREAD_PORT:-8501}"
 MODE="${1:-run}"
 
 say()  { printf "\033[1;34m▸ %s\033[0m\n" "$*"; }
@@ -58,30 +54,12 @@ setup_backend() {
   fi
 }
 
-# ---------------------------------------------------------------- frontend
-setup_frontend() {
-  command -v npm >/dev/null 2>&1 || fail "Node.js/npm not found. Install Node 18+ from https://nodejs.org"
-  if [ ! -d "$FRONTEND/node_modules" ] || [ "$FRONTEND/package.json" -nt "$FRONTEND/node_modules" ]; then
-    say "Installing frontend packages"
-    (cd "$FRONTEND" && npm install --no-fund --no-audit --loglevel=error && touch node_modules)
-  fi
-}
-
-build_frontend() {
-  # Rebuild only if there is no build yet or any source file is newer than it.
-  local dist="$FRONTEND/dist/index.html"
-  if [ ! -f "$dist" ] || [ -n "$(find "$FRONTEND/src" "$FRONTEND/index.html" -newer "$dist" -print -quit)" ]; then
-    say "Building the web UI"
-    (cd "$FRONTEND" && npm run build --silent >/dev/null)
-  fi
-}
-
 port_free() { ! lsof -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
 
 open_when_ready() {
-  # Wait (in the background) until the server answers, then open the browser.
+  # Wait (in the background) until the app answers, then open the browser.
   ( for _ in $(seq 1 600); do
-      if curl -s "http://localhost:$PORT/health" >/dev/null 2>&1 || curl -s "http://localhost:$PORT/_stcore/health" >/dev/null 2>&1; then
+      if curl -s "http://localhost:$PORT/_stcore/health" >/dev/null 2>&1; then
         printf "\n\033[1;32m✓ Proofread is ready: %s\033[0m  (Ctrl+C to stop)\n\n" "$1"
         command -v open >/dev/null 2>&1 && open "$1"
         exit 0
@@ -99,34 +77,11 @@ case "$MODE" in
 
   run)
     setup_backend
-    port_free "$ST_PORT" || fail "Port $ST_PORT is already in use. Stop the other app, or run: PROOFREAD_STREAMLIT_PORT=8502 ./start.sh"
-    say "Starting Proofread on http://localhost:$ST_PORT (the first start downloads ~640 MB of AI models)"
-    PORT="$ST_PORT" open_when_ready "http://localhost:$ST_PORT"
-    cd "$ROOT"
-    exec "$VENV/bin/streamlit" run streamlit_app.py --server.port "$ST_PORT" --server.headless true --server.address localhost
-    ;;
-
-  web)
-    setup_backend; setup_frontend; build_frontend
-    port_free "$PORT" || fail "Port $PORT is already in use. Stop the other server, or run: PROOFREAD_PORT=8001 ./start.sh"
-    say "Starting Proofread on http://localhost:$PORT (loading AI models, first start downloads ~640 MB)"
+    port_free "$PORT" || fail "Port $PORT is already in use. Stop the other app, or run: PROOFREAD_PORT=8502 ./start.sh"
+    say "Starting Proofread on http://localhost:$PORT (the first start downloads ~640 MB of AI models)"
     open_when_ready "http://localhost:$PORT"
-    cd "$BACKEND"
-    exec "$VENV/bin/uvicorn" app.main:app --port "$PORT" --log-level warning
-    ;;
-
-  dev)
-    setup_backend; setup_frontend
-    port_free 8000 || fail "Port 8000 is already in use."
-    port_free 5173 || fail "Port 5173 is already in use."
-    say "Dev mode: API on :8000 (auto-reload), UI on :5173 (hot reload). Ctrl+C stops both."
-    PORT=8000 open_when_ready "http://localhost:5173"
-    (cd "$BACKEND" && exec "$VENV/bin/uvicorn" app.main:app --reload --port 8000) &
-    API_PID=$!
-    (cd "$FRONTEND" && exec npm run dev -- --clearScreen false) &
-    UI_PID=$!
-    trap 'kill $API_PID $UI_PID 2>/dev/null; wait 2>/dev/null; exit 0' INT TERM
-    wait
+    cd "$ROOT"
+    exec "$VENV/bin/streamlit" run streamlit_app.py --server.port "$PORT" --server.headless true --server.address localhost
     ;;
 
   eval)
@@ -137,6 +92,6 @@ case "$MODE" in
     ;;
 
   *)
-    fail "Unknown mode '$MODE'. Use: ./start.sh [run|eval|setup|web|dev]"
+    fail "Unknown mode '$MODE'. Use: ./start.sh [run|eval|setup]"
     ;;
 esac

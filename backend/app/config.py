@@ -3,7 +3,7 @@ Central configuration for Proofread.
 
 Every threshold the pipeline uses lives here so it can be explained (and changed)
 in one place. Values can also be overridden with environment variables, e.g.
-    PROOFREAD_RELEVANCE_THRESHOLD=0.5 uvicorn app.main:app
+    PROOFREAD_RELEVANCE_THRESHOLD=0.5 ./start.sh
 """
 import os
 from pathlib import Path
@@ -22,7 +22,6 @@ TEST_CLAIMS_PATH = DATA_DIR / "test_claims.json"
 MULTI_CLAIM_TESTS_PATH = DATA_DIR / "multi_claim_tests.json"
 DB_PATH = Path(os.getenv("PROOFREAD_DB", DATA_DIR / "proofread.db"))  # SQLite database file
 RESULTS_DIR = BASE_DIR / "results"
-FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"     # built UI, served by FastAPI
 
 # ---------------------------------------------------------------- models
 SPACY_MODEL = "en_core_web_sm"                              # sentence split + NER
@@ -55,9 +54,6 @@ MIN_CLAIM_TOKENS = 5       # sentences shorter than this (in words) are discarde
 # this much (i.e. it names at least one entity/date/number), up to this many per post.
 MIN_MULTI_CLAIM_SCORE = 2.0
 MAX_CLAIMS_PER_POST = 6
-
-# ---------------------------------------------------------------- API
-ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 DISCLAIMER = (
     "Proofread is a decision-support tool for human reviewers. The verdict is based only "

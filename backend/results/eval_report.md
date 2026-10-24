@@ -1,6 +1,6 @@
 # Proofread evaluation report: Built-in test set (Chandrayaan-3)
 
-Generated 2026-10-24T20:51:35+00:00. 14 hand-written test claims; 4 multi-claim posts. Settings: relevance threshold {config.RELEVANCE_THRESHOLD}, top_k 3, entailment/contradiction threshold 0.6/0.6, mismatch nudge 0.35.
+Generated 2026-10-24T21:36:45+00:00. 14 hand-written test claims; 4 multi-claim posts. Settings: relevance threshold {config.RELEVANCE_THRESHOLD}, top_k 3, entailment/contradiction threshold 0.6/0.6, mismatch nudge 0.35.
 
 ## Headline results (full system)
 
@@ -11,7 +11,7 @@ Generated 2026-10-24T20:51:35+00:00. 14 hand-written test claims; 4 multi-claim 
 - Sent to a human as CONFLICTING: 7%
 - End-to-end (claim extracted from the post): 93%; extraction found the intended claim in 14/14 posts
 - Multi-claim posts: found 100% of the claims (precision 92%); verdict correct for 82% of the claims found
-- Average time per claim: 0.12 s on mps
+- Average time per claim: 0.11 s on mps
 
 ## Baselines and ablations
 
