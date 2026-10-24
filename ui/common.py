@@ -46,12 +46,7 @@ def get_pipeline() -> ProofreadPipeline:
 def backfill_test_claims() -> int:
     """Once per server start: give every topic that has passages but no test claims a generated set."""
     from app import claimgen
-    nlp, made = get_pipeline().nlp, 0
-    for c in db.get_collections():
-        if c["passage_count"] and not db.get_test_claims(c["id"]):
-            db.replace_auto_test_claims(c["id"], claimgen.generate(nlp, db.get_passages(c["id"]), c))
-            made += 1
-    return made
+    return claimgen.backfill(get_pipeline().nlp)
 
 
 def topic_options() -> tuple[list[str], dict]:

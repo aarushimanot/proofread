@@ -301,3 +301,30 @@ def generate(nlp, passages: list[dict], topic: dict, count: int | None = None, s
         "collection_id": topic["id"], "claim": claim, "expected_verdict": verdict, "note": note,
         "post_text": rng.choice(POST_TEMPLATES).format(c=claim),
     } for i, (claim, verdict, note) in enumerate(claims[:count])]
+
+
+# ------------------------------------------------------------------ keeping topics' test claims up to date
+def uses_generated_tests(collection_id: str) -> bool:
+    """Every topic except one with hand-written tests (the built-in Chandrayaan-3 set) uses generated claims."""
+    from . import db
+    return not db.get_test_claims(collection_id, origin="seed")
+
+
+def refresh(nlp, collection: dict, count: int | None = None) -> int:
+    """Regenerate a topic's test claims from its current passages; returns how many were made."""
+    from . import db
+    if not uses_generated_tests(collection["id"]):
+        return 0
+    items = generate(nlp, db.get_passages(collection["id"]), collection, count=count)
+    db.replace_auto_test_claims(collection["id"], items)
+    return len(items)
+
+
+def backfill(nlp) -> int:
+    """Give every topic that has passages but no test claims a generated set (run at startup)."""
+    from . import db
+    made = 0
+    for c in db.get_collections():
+        if c["passage_count"] and not db.get_test_claims(c["id"]):
+            made += refresh(nlp, c) > 0
+    return made

@@ -17,12 +17,9 @@ MIN_TEXT = 20  # characters, same rule as the API
 
 
 def _refresh_tests(collection: dict) -> int:
-    """Regenerate a user topic's auto test claims from its current passages; returns how many."""
-    passages = db.get_passages(collection["id"])
+    """Regenerate a topic's test claims from its current passages; returns how many."""
     count = st.session_state.get(f"tests_n_{collection['id']}") or None
-    items = claimgen.generate(get_pipeline().nlp, passages, collection, count=count)
-    db.replace_auto_test_claims(collection["id"], items)
-    return len(items)
+    return claimgen.refresh(get_pipeline().nlp, collection, count=count)
 
 
 def _new_topic():
