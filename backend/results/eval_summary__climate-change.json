@@ -1,0 +1,447 @@
+{
+  "test_set": {
+    "topic": "climate-change",
+    "name": "climate change",
+    "kind": "auto-generated",
+    "n": 8
+  },
+  "generated": "2026-10-24T20:50:22+00:00",
+  "device": "mps",
+  "settings": {
+    "relevance_threshold": 0.45,
+    "top_k": 3,
+    "entailment_threshold": 0.6,
+    "contradiction_threshold": 0.6,
+    "mismatch_nudge": 0.35
+  },
+  "full": {
+    "n": 8,
+    "correct": 8,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3,
+        "predicted": 3
+      },
+      "CONTRADICTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3,
+        "predicted": 3
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 2,
+        "predicted": 2
+      }
+    },
+    "false_contradiction_rate": 0.0,
+    "false_support_rate": 0.0,
+    "sent_to_human_rate": 0.0
+  },
+  "by_topic": {
+    "climate-change": {
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0
+    }
+  },
+  "confusion": {
+    "SUPPORTED": {
+      "SUPPORTED": 3,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "CONFLICTING": 0
+    },
+    "CONTRADICTED": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 3,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "CONFLICTING": 0
+    },
+    "INSUFFICIENT_EVIDENCE": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 2,
+      "CONFLICTING": 0
+    },
+    "CONFLICTING": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "CONFLICTING": 0
+    }
+  },
+  "calibration": [
+    {
+      "label": "High",
+      "n": 6,
+      "accuracy": 1.0
+    },
+    {
+      "label": "Medium",
+      "n": 0,
+      "accuracy": null
+    },
+    {
+      "label": "Low",
+      "n": 2,
+      "accuracy": 1.0
+    }
+  ],
+  "e2e": {
+    "n": 8,
+    "correct": 8,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3,
+        "predicted": 3
+      },
+      "CONTRADICTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3,
+        "predicted": 3
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 2,
+        "predicted": 2
+      }
+    },
+    "false_contradiction_rate": 0.0,
+    "false_support_rate": 0.0,
+    "sent_to_human_rate": 0.0
+  },
+  "extraction": {
+    "found": 8,
+    "exact": 8
+  },
+  "speed": {
+    "mean_seconds": 0.14125000000000004
+  },
+  "systems": {
+    "Keyword match": {
+      "group": "baseline",
+      "description": "Supported if ≥50% of the claim's content words appear in one passage; otherwise insufficient. Can never say 'contradicted'.",
+      "n": 8,
+      "correct": 5,
+      "accuracy": 0.625,
+      "macro_f1": 0.5555555555555555,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.6,
+      "sent_to_human_rate": 0.0
+    },
+    "Similarity only": {
+      "group": "baseline",
+      "description": "Supported if the most similar passage has similarity ≥ 0.70; otherwise insufficient. Can never say 'contradicted'.",
+      "n": 8,
+      "correct": 5,
+      "accuracy": 0.625,
+      "macro_f1": 0.5555555555555555,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.6,
+      "sent_to_human_rate": 0.0
+    },
+    "Plain NLI": {
+      "group": "baseline",
+      "description": "Retrieval + NLI with no relevance threshold and neither heuristic.",
+      "n": 8,
+      "correct": 5,
+      "accuracy": 0.625,
+      "macro_f1": 0.5166666666666666,
+      "false_contradiction_rate": 1.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.125
+    },
+    "Proofread (full)": {
+      "group": "full",
+      "description": "The real system: relevance threshold, NLI, number/date check, event-alignment gate.",
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "− relevance threshold": {
+      "group": "ablation",
+      "description": "Every retrieved passage counts as relevant.",
+      "n": 8,
+      "correct": 7,
+      "accuracy": 0.875,
+      "macro_f1": 0.9333333333333332,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.125
+    },
+    "− number/date check": {
+      "group": "ablation",
+      "description": "No mismatch nudge.",
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "− event-alignment gate": {
+      "group": "ablation",
+      "description": "Contradictions about other events are kept.",
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "+ sentence-level NLI": {
+      "group": "ablation",
+      "description": "Each passage judged by its most decisive sentence.",
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "top_k = 1": {
+      "group": "ablation",
+      "description": "Only the single most similar passage is used.",
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "top_k = 5": {
+      "group": "ablation",
+      "description": "The five most similar passages are used.",
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    }
+  },
+  "multi": null,
+  "sensitivity": [
+    {
+      "threshold": 0.35,
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    {
+      "threshold": 0.45,
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    {
+      "threshold": 0.55,
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    {
+      "threshold": 0.65,
+      "n": 8,
+      "correct": 8,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    }
+  ],
+  "rows": [
+    {
+      "id": "CLIM-AUTO-01-climate-change",
+      "topic": "climate-change",
+      "claim": "Scottish Green Mark Ruskell, the SNP’s Keith Brown and Scottish Labour’s Jenny Young weigh up the James Cook decision.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 0.9967,
+      "confidence_label": "High",
+      "top_passage": "P-ce05b2c1 Climate - BBC News: Jackdaw decision 'taken outwith Scotland about Scotland's energy'",
+      "top_similarity": 0.8056,
+      "relevant_passages": 1,
+      "stances": "P-ce05b2c1:contradicts; P-1be2822c:not_assessed; P-04c00826:not_assessed",
+      "extracted_claim": "Scottish Green Mark Ruskell, the SNP’s Keith Brown and Scottish Labour’s Jenny Young weigh up the James Cook decision.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.403,
+      "note": "Auto-generated from “Climate - BBC News: Jackdaw decision 'taken outwith Scotland about Scotland's energy'”: swapped “Jackdaw” for “James Cook”."
+    },
+    {
+      "id": "CLIM-AUTO-02-climate-change",
+      "topic": "climate-change",
+      "claim": "Rosebank leader Stephen Place says it will help businesses counter the rising cost of fuel.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 0.9483,
+      "confidence_label": "High",
+      "top_passage": "P-8240a384 Climate - BBC News: Fund to help businesses switch to green vehicles",
+      "top_similarity": 0.8954,
+      "relevant_passages": 1,
+      "stances": "P-8240a384:contradicts; P-1be2822c:not_assessed; P-7b789f7b:not_assessed",
+      "extracted_claim": "Rosebank leader Stephen Place says it will help businesses counter the rising cost of fuel.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.136,
+      "note": "Auto-generated from “Climate - BBC News: Fund to help businesses switch to green vehicles”: swapped “Council” for “Rosebank”."
+    },
+    {
+      "id": "CLIM-AUTO-03-climate-change",
+      "topic": "climate-change",
+      "claim": "Council leader Stephen Place says it will help businesses counter the rising cost of fuel.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.9823,
+      "confidence_label": "High",
+      "top_passage": "P-8240a384 Climate - BBC News: Fund to help businesses switch to green vehicles",
+      "top_similarity": 1.0,
+      "relevant_passages": 1,
+      "stances": "P-8240a384:supports; P-6427cd78:not_assessed; P-7b789f7b:not_assessed",
+      "extracted_claim": "Council leader Stephen Place says it will help businesses counter the rising cost of fuel.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.133,
+      "note": "Auto-generated: stated in “Climate - BBC News: Fund to help businesses switch to green vehicles”."
+    },
+    {
+      "id": "CLIM-AUTO-04-climate-change",
+      "topic": "climate-change",
+      "claim": "Scotland editor James Cook visits Council - the UK's largest known untapped oilfield - in the North Atlantic.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 0.9907,
+      "confidence_label": "High",
+      "top_passage": "P-1be2822c Climate - BBC News: Is the UK set to green-light a huge untapped oil field?",
+      "top_similarity": 0.8571,
+      "relevant_passages": 1,
+      "stances": "P-1be2822c:contradicts; P-7b789f7b:not_assessed; P-ce05b2c1:not_assessed",
+      "extracted_claim": "Scotland editor James Cook visits Council - the UK's largest known untapped oilfield - in the North Atlantic.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.127,
+      "note": "Auto-generated from “Climate - BBC News: Is the UK set to green-light a huge untapped oil field?”: swapped “Rosebank” for “Council”."
+    },
+    {
+      "id": "CLIM-AUTO-05-climate-change",
+      "topic": "climate-change",
+      "claim": "Climate change got its own official mobile app in 2004.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": null,
+      "confidence_label": "Low",
+      "top_passage": "P-6427cd78 Climate - BBC News: Why do farmers want to build reservoirs and what's stopping them?",
+      "top_similarity": 0.1714,
+      "relevant_passages": 0,
+      "stances": "P-6427cd78:not_assessed; P-8240a384:not_assessed; P-1be2822c:not_assessed",
+      "extracted_claim": "Climate change got its own official mobile app in 2004.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.057,
+      "note": "Auto-generated: a plausible statement no passage mentions, so the right answer is insufficient evidence."
+    },
+    {
+      "id": "CLIM-AUTO-06-climate-change",
+      "topic": "climate-change",
+      "claim": "Climate change received a donation of 5 million dollars from a technology company in 1991.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": null,
+      "confidence_label": "Low",
+      "top_passage": "P-8240a384 Climate - BBC News: Fund to help businesses switch to green vehicles",
+      "top_similarity": 0.2591,
+      "relevant_passages": 0,
+      "stances": "P-8240a384:not_assessed; P-6427cd78:not_assessed; P-f0ed0493:not_assessed",
+      "extracted_claim": "Climate change received a donation of 5 million dollars from a technology company in 1991.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.02,
+      "note": "Auto-generated: a plausible statement no passage mentions, so the right answer is insufficient evidence."
+    },
+    {
+      "id": "CLIM-AUTO-07-climate-change",
+      "topic": "climate-change",
+      "claim": "The Prince of Wales was marking his Earthshot Prize, to which all of Norton's guests were linked.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.9781,
+      "confidence_label": "High",
+      "top_passage": "P-f0ed0493 Climate - BBC News: Gasps as Prince William makes surprise appearance on Graham Norton Show",
+      "top_similarity": 1.0,
+      "relevant_passages": 1,
+      "stances": "P-f0ed0493:supports; P-ce05b2c1:not_assessed; P-1be2822c:not_assessed",
+      "extracted_claim": "The Prince of Wales was marking his Earthshot Prize, to which all of Norton's guests were linked.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.13,
+      "note": "Auto-generated: stated in “Climate - BBC News: Gasps as Prince William makes surprise appearance on Graham Norton Show”."
+    },
+    {
+      "id": "CLIM-AUTO-08-climate-change",
+      "topic": "climate-change",
+      "claim": "A committee hears that Northern Ireland could lose out on economic opportunities if action is not accelerated.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.9926,
+      "confidence_label": "High",
+      "top_passage": "P-04c00826 Climate - BBC News: NI risks missing 2030 energy goals, says Stormont committee",
+      "top_similarity": 1.0,
+      "relevant_passages": 1,
+      "stances": "P-04c00826:supports; P-6427cd78:not_assessed; P-ce05b2c1:not_assessed",
+      "extracted_claim": "A committee hears that Northern Ireland could lose out on economic opportunities if action is not accelerated.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.124,
+      "note": "Auto-generated: stated in “Climate - BBC News: NI risks missing 2030 energy goals, says Stormont committee”."
+    }
+  ]
+}

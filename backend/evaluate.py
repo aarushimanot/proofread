@@ -16,6 +16,10 @@ What it measures
 
 Outputs: results/eval_summary.json (read by the Streamlit app), results/eval_results.csv
 and results/eval_report.md. Nothing here changes thresholds: failures are reported as they are.
+
+Topics added in the app can be evaluated on their auto-generated test claims too
+(Evaluation page, or `python evaluate.py --topic <topic-id>`); their files get a
+`__<topic-id>` suffix so they never overwrite the built-in results.
 """
 import csv
 import json
@@ -233,23 +237,27 @@ def pct(x) -> str:
 
 
 def write_report(s: dict) -> str:
-    f = s["full"]
+    f, ts, multi = s["full"], s["test_set"], s["multi"]
+    caveat = ("All test claims were seen while the system was being built (there is no held-out set), so this is an optimistic estimate."
+              if ts["kind"] == "hand-written" else
+              "These test claims were generated automatically from the topic's own passages: they test whether the "
+              "system can confirm or reject facts stated in its sources, not real-world accuracy. Review them first.")
     md = [
-        "# Proofread evaluation report", "",
-        f"Generated {s['generated']}. {f['n']} test claims across {len(s['by_topic'])} topics; "
-        f"{s['multi']['posts']} multi-claim posts. Settings: relevance threshold {config.RELEVANCE_THRESHOLD}, "
+        f"# Proofread evaluation report: {ts['name']}", "",
+        f"Generated {s['generated']}. {f['n']} {ts['kind']} test claims"
+        + (f"; {multi['posts']} multi-claim posts" if multi else "") + ". Settings: relevance threshold {config.RELEVANCE_THRESHOLD}, "
         f"top_k {config.TOP_K}, entailment/contradiction threshold {config.ENTAILMENT_THRESHOLD}/"
         f"{config.CONTRADICTION_THRESHOLD}, mismatch nudge {config.MISMATCH_NUDGE}.", "",
         "## Headline results (full system)", "",
         f"- **Accuracy: {f['correct']}/{f['n']} = {pct(f['accuracy'])}** (macro-F1 {f['macro_f1']:.2f})",
-        "- All test claims were seen while the system was being built (there is no held-out set), so this is an optimistic estimate.",
+        f"- {caveat}",
         f"- Not-covered claims wrongly called false: **{pct(f['false_contradiction_rate'])}** (the assignment's key rule)",
         f"- Wrong or not-covered claims wrongly supported: **{pct(f['false_support_rate'])}**",
         f"- Sent to a human as CONFLICTING: {pct(f['sent_to_human_rate'])}",
         f"- End-to-end (claim extracted from the post): {pct(s['e2e']['accuracy'])}; extraction found the intended claim in "
         f"{s['extraction']['found']}/{f['n']} posts",
-        f"- Multi-claim posts: found {pct(s['multi']['claim_recall'])} of the claims (precision {pct(s['multi']['claim_precision'])}); "
-        f"verdict correct for {pct(s['multi']['verdict_accuracy_on_found'])} of the claims found",
+        *([f"- Multi-claim posts: found {pct(multi['claim_recall'])} of the claims (precision {pct(multi['claim_precision'])}); "
+            f"verdict correct for {pct(multi['verdict_accuracy_on_found'])} of the claims found"] if multi else []),
         f"- Average time per claim: {s['speed']['mean_seconds']:.2f} s on {s['device']}", "",
         "## Baselines and ablations", "",
         "| system | type | accuracy | macro-F1 | not-covered → false | wrongly supported | to human |",
@@ -272,20 +280,21 @@ def write_report(s: dict) -> str:
     md += [f"| {c['label']} | {c['n']} | {pct(c['accuracy'])} |" for c in s["calibration"]]
     md += ["", "## Relevance-threshold sensitivity", "", "| threshold | accuracy | not-covered → false |", "|---|---|---|"]
     md += [f"| {r['threshold']} | {pct(r['accuracy'])} | {pct(r['false_contradiction_rate'])} |" for r in s["sensitivity"]]
-    md += ["", "## Multi-claim posts", ""]
-    for d in s["multi"]["details"]:
+    if multi:
+        md += ["", "## Multi-claim posts", ""]
+    for d in (multi["details"] if multi else []):
         md.append(f"- **{d['id']}** ({d['topic']})")
         for p in d["pairs"]:
             got = f"found → {p['predicted']}" if p["extracted"] else "NOT FOUND"
-            mark = "✅" if p["predicted"] == p["expected"] else "❌"
-            md.append(f"  - {mark} “{p['gold']}” expected {p['expected']}, {got}")
+            mark = "correct" if p["predicted"] == p["expected"] else "WRONG"
+            md.append(f"  - ({mark}) “{p['gold']}” expected {p['expected']}, {got}")
         for extra in d["extra_claims"]:
-            md.append(f"  - ➕ extra sentence treated as a claim: “{extra}”")
+            md.append(f"  - (extra) sentence treated as a claim: “{extra}”")
     md += ["", "## Per-claim results (full system)", "",
            "| id | claim | expected | predicted | confidence | top passage |", "|---|---|---|---|---|---|"]
     for r in s["rows"]:
         conf = f"{r['confidence']:.2f} ({r['confidence_label']})" if r["confidence"] is not None else "– (Low)"
-        md.append(f"| {r['id']} | {r['claim']} | {r['expected']} | {'✅' if r['correct'] else '❌'} {r['predicted']} "
+        md.append(f"| {r['id']} | {r['claim']} | {r['expected']} | {'' if r['correct'] else 'WRONG: '}{r['predicted']} "
                   f"| {conf} | {r['top_passage']} |")
     md += ["", "## Failures", ""]
     failures = [r for r in s["rows"] if not r["correct"]]
@@ -295,16 +304,30 @@ def write_report(s: dict) -> str:
     if misses:
         md += ["", "### Extraction misses", ""]
         md += [f"- **{r['id']}** picked “{r['extracted_claim']}” instead of “{r['claim']}”" for r in misses]
-    md += ["", "_Caveats: 14 hand-written claims is a small test set, and they guided several design decisions "
-           "(see the README), so these numbers are optimistic. Accuracy on real social media posts and on other "
-           "topics has not been measured._"]
+    md += ["", f"_Caveat: {caveat} {f['n']} claims is a small test set._"]
     return "\n".join(md)
 
 
-def run_evaluation(pipeline: ProofreadPipeline) -> dict:
-    """Run every evaluation step, save the result files and return the summary."""
-    seed_topics = {c["id"] for c in db.get_collections() if c["origin"] == "seed"}
-    tests = [t for t in db.get_test_claims() if t["collection_id"] in seed_topics]
+def results_suffix(topic_id: str | None) -> str:
+    return f"__{topic_id}" if topic_id else ""
+
+
+def run_evaluation(pipeline: ProofreadPipeline, topic_id: str | None = None) -> dict:
+    """
+    Run every evaluation step, save the result files and return the summary.
+    topic_id=None: the 14 hand-written built-in claims (+ multi-claim posts).
+    topic_id=<id>: that topic's test claims (auto-generated for topics added in the app).
+    """
+    if topic_id is None:
+        tests = db.get_test_claims(origin="seed")
+        test_set = {"topic": None, "name": "Built-in test set (Chandrayaan-3)", "kind": "hand-written"}
+    else:
+        tests = db.get_test_claims(topic_id)
+        kind = "auto-generated" if any(t["origin"] == "auto" for t in tests) else "hand-written"
+        test_set = {"topic": topic_id, "name": db.get_collection(topic_id)["name"], "kind": kind}
+    if not tests:
+        raise ValueError("This topic has no test claims yet.")
+    test_set["n"] = len(tests)
     expected = [t["expected_verdict"] for t in tests]
     print(f"Evaluating {len(tests)} claims on {pipeline.device}...", file=sys.stderr)
 
@@ -320,6 +343,7 @@ def run_evaluation(pipeline: ProofreadPipeline) -> dict:
         systems[name] = {"group": group, "description": description, **m}
 
     summary = {
+        "test_set": test_set,
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "device": pipeline.device,
         "settings": {"relevance_threshold": config.RELEVANCE_THRESHOLD, "top_k": config.TOP_K,
@@ -334,24 +358,29 @@ def run_evaluation(pipeline: ProofreadPipeline) -> dict:
                        "exact": sum(r["extraction"] == "exact" for r in rows)},
         "speed": {"mean_seconds": sum(r["seconds"] for r in rows) / len(rows)},
         "systems": systems,
-        "multi": evaluate_multi(pipeline),
+        "multi": evaluate_multi(pipeline) if topic_id is None else None,
         "sensitivity": sensitivity(pipeline, tests),
         "rows": rows,
     }
 
     config.RESULTS_DIR.mkdir(exist_ok=True)
-    (config.RESULTS_DIR / "eval_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
-    with open(config.RESULTS_DIR / "eval_results.csv", "w", newline="", encoding="utf-8") as fh:
+    sfx = results_suffix(topic_id)
+    (config.RESULTS_DIR / f"eval_summary{sfx}.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    with open(config.RESULTS_DIR / f"eval_results{sfx}.csv", "w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
-    (config.RESULTS_DIR / "eval_report.md").write_text(write_report(summary), encoding="utf-8")
+    (config.RESULTS_DIR / f"eval_report{sfx}.md").write_text(write_report(summary), encoding="utf-8")
     return summary
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Evaluate Proofread.")
+    parser.add_argument("--topic", help="evaluate a topic's test claims instead of the built-in 14 (topic id)")
+    args = parser.parse_args()
     print("Loading models...", file=sys.stderr)
-    summary = run_evaluation(ProofreadPipeline())
+    summary = run_evaluation(ProofreadPipeline(), args.topic)
     systems, rows = summary["systems"], summary["rows"]
 
     f = summary["full"]
@@ -359,7 +388,8 @@ def main():
     print(f"Full system accuracy:   {f['correct']}/{f['n']} = {f['accuracy']:.0%}   (macro-F1 {f['macro_f1']:.2f})")
     print(f"Not covered -> 'false': {f['false_contradiction_rate']:.0%}    wrongly supported: {f['false_support_rate']:.0%}")
     m = summary["multi"]
-    print(f"Multi-claim: recall {m['claim_recall']:.0%}, precision {m['claim_precision']:.0%}, verdicts {m['verdict_accuracy_on_found']:.0%}")
+    if m:
+        print(f"Multi-claim: recall {m['claim_recall']:.0%}, precision {m['claim_precision']:.0%}, verdicts {m['verdict_accuracy_on_found']:.0%}")
     print("-" * 78)
     for name, r in systems.items():
         print(f"{name:<24} acc {r['accuracy']:>4.0%}  F1 {r['macro_f1']:.2f}  not-covered->false {r['false_contradiction_rate']:>4.0%}"
@@ -369,7 +399,8 @@ def main():
         if not r["correct"]:
             print(f"FAIL {r['id']:<4} expected {r['expected']:<22} got {r['predicted']:<22} {r['claim'][:38]}")
     print("=" * 78)
-    print(f"Saved {config.RESULTS_DIR}/eval_summary.json, eval_results.csv and eval_report.md")
+    sfx = results_suffix(args.topic)
+    print(f"Saved {config.RESULTS_DIR}/eval_summary{sfx}.json, eval_results{sfx}.csv and eval_report{sfx}.md")
 
 
 if __name__ == "__main__":

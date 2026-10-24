@@ -1,0 +1,485 @@
+{
+  "test_set": {
+    "topic": "eiffel-tower",
+    "name": "Eiffel Tower",
+    "kind": "auto-generated",
+    "n": 10
+  },
+  "generated": "2026-10-24T20:50:47+00:00",
+  "device": "mps",
+  "settings": {
+    "relevance_threshold": 0.45,
+    "top_k": 3,
+    "entailment_threshold": 0.6,
+    "contradiction_threshold": 0.6,
+    "mismatch_nudge": 0.35
+  },
+  "full": {
+    "n": 10,
+    "correct": 5,
+    "accuracy": 0.5,
+    "macro_f1": 0.4222222222222222,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 4,
+        "predicted": 0
+      },
+      "CONTRADICTED": {
+        "precision": 0.5,
+        "recall": 0.75,
+        "f1": 0.6,
+        "support": 4,
+        "predicted": 6
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "support": 2,
+        "predicted": 4
+      }
+    },
+    "false_contradiction_rate": 0.0,
+    "false_support_rate": 0.0,
+    "sent_to_human_rate": 0.0
+  },
+  "by_topic": {
+    "eiffel-tower": {
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5
+    }
+  },
+  "confusion": {
+    "SUPPORTED": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 3,
+      "INSUFFICIENT_EVIDENCE": 1,
+      "CONFLICTING": 0
+    },
+    "CONTRADICTED": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 3,
+      "INSUFFICIENT_EVIDENCE": 1,
+      "CONFLICTING": 0
+    },
+    "INSUFFICIENT_EVIDENCE": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 2,
+      "CONFLICTING": 0
+    },
+    "CONFLICTING": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "CONFLICTING": 0
+    }
+  },
+  "calibration": [
+    {
+      "label": "High",
+      "n": 10,
+      "accuracy": 0.5
+    },
+    {
+      "label": "Medium",
+      "n": 0,
+      "accuracy": null
+    },
+    {
+      "label": "Low",
+      "n": 0,
+      "accuracy": null
+    }
+  ],
+  "e2e": {
+    "n": 10,
+    "correct": 5,
+    "accuracy": 0.5,
+    "macro_f1": 0.4222222222222222,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 4,
+        "predicted": 0
+      },
+      "CONTRADICTED": {
+        "precision": 0.5,
+        "recall": 0.75,
+        "f1": 0.6,
+        "support": 4,
+        "predicted": 6
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "support": 2,
+        "predicted": 4
+      }
+    },
+    "false_contradiction_rate": 0.0,
+    "false_support_rate": 0.0,
+    "sent_to_human_rate": 0.0
+  },
+  "extraction": {
+    "found": 10,
+    "exact": 10
+  },
+  "speed": {
+    "mean_seconds": 0.3181
+  },
+  "systems": {
+    "Keyword match": {
+      "group": "baseline",
+      "description": "Supported if ≥50% of the claim's content words appear in one passage; otherwise insufficient. Can never say 'contradicted'.",
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.42735042735042733,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.8333333333333334,
+      "sent_to_human_rate": 0.0
+    },
+    "Similarity only": {
+      "group": "baseline",
+      "description": "Supported if the most similar passage has similarity ≥ 0.70; otherwise insufficient. Can never say 'contradicted'.",
+      "n": 10,
+      "correct": 4,
+      "accuracy": 0.4,
+      "macro_f1": 0.33862433862433866,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.5,
+      "sent_to_human_rate": 0.0
+    },
+    "Plain NLI": {
+      "group": "baseline",
+      "description": "Retrieval + NLI with no relevance threshold and neither heuristic.",
+      "n": 10,
+      "correct": 4,
+      "accuracy": 0.4,
+      "macro_f1": 0.3151515151515151,
+      "false_contradiction_rate": 0.5,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "Proofread (full)": {
+      "group": "full",
+      "description": "The real system: relevance threshold, NLI, number/date check, event-alignment gate.",
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.4222222222222222,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "− relevance threshold": {
+      "group": "ablation",
+      "description": "Every retrieved passage counts as relevant.",
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.4222222222222222,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "− number/date check": {
+      "group": "ablation",
+      "description": "No mismatch nudge.",
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.41269841269841273,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "− event-alignment gate": {
+      "group": "ablation",
+      "description": "Contradictions about other events are kept.",
+      "n": 10,
+      "correct": 4,
+      "accuracy": 0.4,
+      "macro_f1": 0.3151515151515151,
+      "false_contradiction_rate": 0.5,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "+ sentence-level NLI": {
+      "group": "ablation",
+      "description": "Each passage judged by its most decisive sentence.",
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.4646464646464647,
+      "false_contradiction_rate": 0.5,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.2
+    },
+    "top_k = 1": {
+      "group": "ablation",
+      "description": "Only the single most similar passage is used.",
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.41269841269841273,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    "top_k = 5": {
+      "group": "ablation",
+      "description": "The five most similar passages are used.",
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.4222222222222222,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    }
+  },
+  "multi": null,
+  "sensitivity": [
+    {
+      "threshold": 0.35,
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.4222222222222222,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    {
+      "threshold": 0.45,
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.4222222222222222,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    {
+      "threshold": 0.55,
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.41269841269841273,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    },
+    {
+      "threshold": 0.65,
+      "n": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "macro_f1": 0.4166666666666667,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.0
+    }
+  ],
+  "rows": [
+    {
+      "id": "EIFF-AUTO-01-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "On 27 October 1991, Thierry Devaux, along with mountain guide Hervé Calvayrac, performed a series of acrobatic figures while bungee jumping from the second floor of the tower.",
+      "expected": "SUPPORTED",
+      "predicted": "CONTRADICTED",
+      "correct": false,
+      "confidence": 0.9947,
+      "confidence_label": "High",
+      "top_passage": "P-2ef2952b Eiffel Tower: Subsequent events",
+      "top_similarity": 0.747,
+      "relevant_passages": 2,
+      "stances": "P-2ef2952b:contradicts; P-324a90a6:contradicts; P-62736069:not_assessed",
+      "extracted_claim": "On 27 October 1991, Thierry Devaux, along with mountain guide Hervé Calvayrac, performed a series of acrobatic figures while bungee jumping from the second floor of the tower.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.327,
+      "note": "Auto-generated: stated in “Eiffel Tower: Subsequent events”."
+    },
+    {
+      "id": "EIFF-AUTO-02-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "In 2009, the Eiffel Tower began hosting a seasonal ice rink on the first level.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 1.0,
+      "confidence_label": "High",
+      "top_passage": "P-4b474913 Eiffel Tower: Subsequent events",
+      "top_similarity": 0.7351,
+      "relevant_passages": 3,
+      "stances": "P-4b474913:contradicts; P-dd632a41:insufficient; P-2c1dd2b1:insufficient",
+      "extracted_claim": "In 2009, the Eiffel Tower began hosting a seasonal ice rink on the first level.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.339,
+      "note": "Auto-generated from “Eiffel Tower: Subsequent events”: changed the year 2004 to 2009."
+    },
+    {
+      "id": "EIFF-AUTO-03-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "The tower received its 200,000,000th guest on 28 November 2002.",
+      "expected": "SUPPORTED",
+      "predicted": "CONTRADICTED",
+      "correct": false,
+      "confidence": 1.0,
+      "confidence_label": "High",
+      "top_passage": "P-4b474913 Eiffel Tower: Subsequent events",
+      "top_similarity": 0.6356,
+      "relevant_passages": 3,
+      "stances": "P-4b474913:insufficient; P-b21692f3:insufficient; P-bd7e089e:contradicts",
+      "extracted_claim": "The tower received its 200,000,000th guest on 28 November 2002.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.345,
+      "note": "Auto-generated: stated in “Eiffel Tower: Subsequent events”."
+    },
+    {
+      "id": "EIFF-AUTO-04-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct.",
+      "expected": "SUPPORTED",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": false,
+      "confidence": 0.9981,
+      "confidence_label": "High",
+      "top_passage": "P-543625f7 Eiffel Tower",
+      "top_similarity": 0.897,
+      "relevant_passages": 3,
+      "stances": "P-543625f7:insufficient; P-95f8a507:insufficient; P-dd632a41:insufficient",
+      "extracted_claim": "Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.191,
+      "note": "Auto-generated: stated in “Eiffel Tower”."
+    },
+    {
+      "id": "EIFF-AUTO-05-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "The tower received 5,889,000 visitors in 2022.",
+      "expected": "SUPPORTED",
+      "predicted": "CONTRADICTED",
+      "correct": false,
+      "confidence": 1.0,
+      "confidence_label": "High",
+      "top_passage": "P-4b474913 Eiffel Tower: Subsequent events",
+      "top_similarity": 0.6204,
+      "relevant_passages": 3,
+      "stances": "P-4b474913:contradicts; P-b21692f3:insufficient; P-794a2079:contradicts",
+      "extracted_claim": "The tower received 5,889,000 visitors in 2022.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.366,
+      "note": "Auto-generated: stated in “Eiffel Tower”."
+    },
+    {
+      "id": "EIFF-AUTO-06-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "The tower is 330 metres tall, about the same height as a 49-storey building, and the tallest structure in Paris.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 1.0,
+      "confidence_label": "High",
+      "top_passage": "P-95f8a507 Eiffel Tower",
+      "top_similarity": 0.8424,
+      "relevant_passages": 3,
+      "stances": "P-95f8a507:contradicts; P-543625f7:contradicts; P-f4482fae:contradicts",
+      "extracted_claim": "The tower is 330 metres tall, about the same height as a 49-storey building, and the tallest structure in Paris.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.389,
+      "note": "Auto-generated from “Eiffel Tower”: changed the number 81 to 49."
+    },
+    {
+      "id": "EIFF-AUTO-07-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "The Eiffel Tower got its own official mobile app in 2018.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": 0.998,
+      "confidence_label": "High",
+      "top_passage": "P-dd632a41 Eiffel Tower",
+      "top_similarity": 0.5832,
+      "relevant_passages": 3,
+      "stances": "P-dd632a41:insufficient; P-2c1dd2b1:insufficient; P-4b474913:insufficient",
+      "extracted_claim": "The Eiffel Tower got its own official mobile app in 2018.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.257,
+      "note": "Auto-generated: a plausible statement no passage mentions, so the right answer is insufficient evidence."
+    },
+    {
+      "id": "EIFF-AUTO-08-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "Levallois-Perret supposedly ate lunch in the tower's restaurant every day because it was the one place in Paris where the tower was not visible.",
+      "expected": "CONTRADICTED",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": false,
+      "confidence": 0.9711,
+      "confidence_label": "High",
+      "top_passage": "P-ac9f1ce1 Eiffel Tower: Artists' protest",
+      "top_similarity": 0.5824,
+      "relevant_passages": 1,
+      "stances": "P-ac9f1ce1:insufficient; P-6e426930:not_assessed; P-582d2421:not_assessed",
+      "extracted_claim": "Levallois-Perret supposedly ate lunch in the tower's restaurant every day because it was the one place in Paris where the tower was not visible.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.508,
+      "note": "Auto-generated from “Eiffel Tower: Artists' protest”: swapped “Guy de Maupassant” for “Levallois-Perret”."
+    },
+    {
+      "id": "EIFF-AUTO-09-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "In 1975, A. J. Hackett made one of his first bungee jumps from the top of the Eiffel Tower, using a special cord he had helped develop.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 0.9866,
+      "confidence_label": "High",
+      "top_passage": "P-2ef2952b Eiffel Tower: Subsequent events",
+      "top_similarity": 0.8355,
+      "relevant_passages": 3,
+      "stances": "P-2ef2952b:contradicts; P-62736069:insufficient; P-9fb72952:insufficient",
+      "extracted_claim": "In 1975, A. J. Hackett made one of his first bungee jumps from the top of the Eiffel Tower, using a special cord he had helped develop.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.352,
+      "note": "Auto-generated from “Eiffel Tower: Subsequent events”: changed the year 1987 to 1975."
+    },
+    {
+      "id": "EIFF-AUTO-10-eiffel-tower",
+      "topic": "eiffel-tower",
+      "claim": "The Eiffel Tower received a donation of 5 million dollars from a technology company in 2005.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": 0.9972,
+      "confidence_label": "High",
+      "top_passage": "P-b8d10a4e Eiffel Tower: Origin",
+      "top_similarity": 0.6409,
+      "relevant_passages": 3,
+      "stances": "P-b8d10a4e:insufficient; P-2c1dd2b1:insufficient; P-b21692f3:insufficient",
+      "extracted_claim": "The Eiffel Tower received a donation of 5 million dollars from a technology company in 2005.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.107,
+      "note": "Auto-generated: a plausible statement no passage mentions, so the right answer is insufficient evidence."
+    }
+  ]
+}

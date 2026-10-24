@@ -42,9 +42,9 @@ Proofread follows three rules it never breaks:
 | Page | What you can do |
 |---|---|
 | **Check a claim** | Pick a topic, paste a post (or load an example). **One claim** mode: extract the claim, edit it, check it. **Every claim** mode: find every factual sentence and check each one. Each result shows a verdict, evidence cards (link, highlights, similarity, NLI scores, number/date warnings, the 🔑 key sentence, a "Why" explanation) and a human-review form. |
-| **Lie-brary** | Browse the topics and passages. Create your own topic and add sources by **pasting a link** (Wikipedia or any web page, split into passages you tick before saving), **pasting text**, or **typing one passage**. Edit or delete your passages. |
+| **Lie-brary** | Browse the topics and passages. Create your own topic and add sources by **pasting a link** (Wikipedia or any web page, split into passages you tick before saving), **pasting text**, or **typing one passage**. Edit or delete your passages. Each topic gets **auto-generated test claims** (section 7) that you can review, edit or regenerate. |
 | **Dashboard** | Live charts from the database: verdicts given, claims per day, model vs reviewer decisions, how often reviewers override each verdict, the most-used topics, sources and passages. |
-| **Evaluation** | Results on the 14 test claims: accuracy, baselines vs Proofread, ablations, confusion matrix, confidence calibration, threshold sensitivity, multi-claim results, every claim, and what the results taught us. A button re-runs the evaluation. |
+| **Evaluation** | Pick a test set (the 14 built-in claims, or any topic's auto-generated claims) and see results: accuracy, baselines vs Proofread, ablations, confusion matrix, confidence calibration, threshold sensitivity, multi-claim results, every claim, and what the results taught us. A button re-runs the evaluation. |
 | **About & Limitations** | How it works, limitations, responsible use. |
 
 Built-in topics: **Chandrayaan-3** (20 passages, including 4 distractors about other ISRO missions), **Constitution of India** (12) and **Cricket World Cup 2023** (12). You can add any other topic in the Lie-brary.
@@ -110,6 +110,7 @@ proofread/
     app/explainer.py       template explanations
     app/textutils.py       text cleaning, keywords, number/date extraction
     app/importer.py        link / text import (safe downloading, splitting into passages)
+    app/claimgen.py        automatic test-claim generation for any topic
     app/db.py              SQLite database
     app/config.py          every threshold in one place
     app/main.py            optional FastAPI server (used by the older React website)
@@ -224,6 +225,30 @@ The two simple baselines can never say "contradicted", so they never break the "
 
 Full details are in `backend/results/eval_report.md` and on the Evaluation page.
 
+### Automatic test claims for any topic
+
+Every topic except the built-in Chandrayaan-3 set gets test claims generated from its passages (`backend/app/claimgen.py`). The spaCy model finds fact sentences and the names, dates and numbers in them, and simple rules build claims whose correct answer is known by construction:
+
+| Claim type | How it is made | Example (Eiffel Tower) |
+|---|---|---|
+| SUPPORTED | a fact sentence taken from a passage | "The tower received 5,889,000 visitors in 2022." |
+| CONTRADICTED | the same kind of sentence with **one** detail changed (year, date, number, ordinal, or a name swapped) | "…about the same height as a **49**-storey building" (passage says 81) |
+| INSUFFICIENT_EVIDENCE | a plausible statement about the topic that no passage mentions | "The Eiffel Tower got its own official mobile app in 2018." |
+
+- **How many:** one per passage, up to 10 (8 passages → 8 claims; 80 passages → 10). The number can be raised.
+- **Mix:** roughly 40% supported, 40% contradicted, 20% not covered.
+- **When:** claims regenerate automatically when passages are added, edited or deleted, and you can edit any claim's text or correct answer.
+- **To evaluate:** use the Evaluation page's "Test set" box, or run `python evaluate.py --topic <topic-id>` in `backend/`.
+
+**Why rules and not a text-writing AI model?** A test's expected answer must be right. A generative model can write a "false" claim that happens to be true, or a "true" one the passages don't say. Rule-made claims are predictable and explainable.
+
+**What they showed.** On a **climate change** topic (8 news passages), Proofread got 8/8. On the **Eiffel Tower** topic (80 Wikipedia passages), it got only **5/10**, and the misses were real system errors, not bad tests:
+- With many passages about visitor numbers and events in *different years*, Proofread called true claims "contradicted". For example, "5,889,000 visitors in **2022**" was set against a passage about **2015**, because the number check assumed the same thing was being counted.
+- Large topics with many similar facts are a known weakness (section 9).
+- One generated claim was odd: a person's name was swapped for a place that spaCy mislabelled as a person.
+
+These claims test whether Proofread can confirm or reject facts stated in its own sources, not how it does on real posts. Review them before relying on the numbers.
+
 ## 8. Deploying as a website
 
 ### Option A: Streamlit Community Cloud (free)
@@ -259,7 +284,8 @@ The YAML block at the top of this README tells Hugging Face to use Docker on por
 - **Passages must make sense on their own** (see section 7). This caused most misses on unseen claims.
 - **Imported pages are treated as true.** A link import keeps a page's paragraphs automatically, including opinions, quotes or outdated facts. The curator must untick those.
 - **NLI is weak on numbers, negation, look-alike names and multi-hop reasoning**, and may still lean on its own background knowledge despite the relevance filter.
-- **Heuristics can misfire.** The number/date check can compare values across missions; the gate uses exact verb matching, so synonyms ("touched down" vs "landed") don't count as the same event.
+- **Large topics with many similar facts.** On an 80-passage topic, true claims were "contradicted" by passages about other years (see section 7).
+- **Heuristics can misfire.** The number/date check can compare values across missions or years; the gate uses exact verb matching, so synonyms ("touched down" vs "landed") don't count as the same event.
 - **Threshold sensitivity.** Relevance 0.45, stance 0.6 and nudge 0.35 were set by hand. The Evaluation page shows how accuracy changes.
 - **Uncalibrated confidence.** "High" means very sure, not correct.
 - **English only.** Multi-claim mode handles at most 6 claims per post, and may treat a non-claim with a date in it as a claim.
@@ -278,7 +304,7 @@ The YAML block at the top of this README tells Hugging Face to use Docker on por
 ## 11. Future work
 
 - Self-contained ("decontextualised") passages: rewrite or automatically expand passages so each names its subject.
-- Entity-level checks for names (would fix T06).
+- Entity-level checks for names (would fix T06), and time-aware number checks (only compare values about the same year).
 - Calibrated confidence, and thresholds learned from reviewer overrides.
 - Hybrid retrieval (keyword + embeddings) so exact names and dates count more.
 - Persistent hosted database, user accounts for reviewers, and multilingual support (Hindi first).

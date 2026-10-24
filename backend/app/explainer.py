@@ -44,7 +44,7 @@ def explain_passage(item: dict) -> str:
     if item["number_matches"]:
         parts.append(f"Numbers/dates that match: {', '.join(item['number_matches'])}.")
     for m in item["mismatches"]:
-        parts.append(f"⚠ Number/date mismatch about '{m['about']}': the claim says {m['claim_value']} "
+        parts.append(f"Number/date mismatch about '{m['about']}': the claim says {m['claim_value']} "
                      f"but the passage says {m['passage_value']}.")
 
     probs = item["probs"]

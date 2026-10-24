@@ -9,14 +9,24 @@ from datetime import date
 import pandas as pd
 import streamlit as st
 
-from app import db, importer
-from ui.common import get_pipeline
+from app import claimgen, db, importer
+from app.aggregator import VERDICTS
+from ui.common import VERDICT_STYLE, get_pipeline
 
 MIN_TEXT = 20  # characters, same rule as the API
 
 
+def _refresh_tests(collection: dict) -> int:
+    """Regenerate a user topic's auto test claims from its current passages; returns how many."""
+    passages = db.get_passages(collection["id"])
+    count = st.session_state.get(f"tests_n_{collection['id']}") or None
+    items = claimgen.generate(get_pipeline().nlp, passages, collection, count=count)
+    db.replace_auto_test_claims(collection["id"], items)
+    return len(items)
+
+
 def _new_topic():
-    with st.expander("➕ New topic"):
+    with st.expander("New topic"):
         with st.form("new-topic", clear_on_submit=True, border=False):
             name = st.text_input("Topic name", placeholder="e.g. Climate change")
             description = st.text_input("Short description (optional)")
@@ -51,7 +61,9 @@ def _preview_editor(preview: dict, collection: dict):
                   "text": r["text"]} for _, r in chosen.iterrows() if len(str(r["text"]).strip()) >= MIN_TEXT]
         db.add_passages(collection["id"], items)
         st.session_state.pop("preview", None)
-        st.session_state["lib_message"] = f"Saved {len(items)} passage(s) to “{collection['name']}”."
+        n = _refresh_tests(collection)
+        st.session_state["lib_message"] = (f"Saved {len(items)} passage(s) to “{collection['name']}” and "
+                                           f"generated {n} test claims.")
         st.rerun()
     if c2.button("Discard"):
         st.session_state.pop("preview", None)
@@ -105,7 +117,9 @@ def _add_sources(collection: dict):
                 else:
                     db.add_passages(collection["id"], [{"title": m_title, "source": m_source, "url": m_url,
                                                         "date": m_date, "text": m_text}])
-                    st.session_state["lib_message"] = f"Saved “{m_title}” to “{collection['name']}”."
+                    n = _refresh_tests(collection)
+                    st.session_state["lib_message"] = (f"Saved “{m_title}” to “{collection['name']}” and "
+                                                       f"generated {n} test claims.")
                     st.rerun()
 
     if st.session_state.get("preview"):
@@ -113,7 +127,57 @@ def _add_sources(collection: dict):
             _preview_editor(st.session_state["preview"], collection)
 
 
-def _passage(p: dict):
+def _test_claims(collection: dict):
+    """Auto-generated test claims for a user topic: view, edit, delete, regenerate."""
+    passages = db.get_passages(collection["id"])
+    tests = db.get_test_claims(collection["id"])
+    st.markdown(f"#### Test claims ({len(tests)})")
+    st.caption("Generated automatically from this topic's passages, so the topic can be evaluated on the Evaluation "
+               "page: true sentences (Supported), sentences with one detail changed (Contradicted) and plausible "
+               "statements no passage mentions (Insufficient evidence). One per passage, up to 10 by default. "
+               "They are built from this topic's own passages, so they test the sources, not real posts. Read them "
+               "and fix any odd one before trusting the results.")
+    if not passages:
+        st.info("Add sources first; test claims are generated from them.")
+        return
+    default = claimgen.default_count(len(passages))
+    key = f"tests_n_{collection['id']}"
+    a, b = st.columns([2, 3])
+    upper = max(default, min(3 * len(passages), 40))
+    st.session_state[key] = min(max(st.session_state.get(key, default), 1), upper)   # keep it in range
+    a.number_input("How many test claims", min_value=1, max_value=upper, key=key)
+    b.write("")
+    if b.button("Regenerate test claims"):
+        n = _refresh_tests(collection)
+        st.session_state["lib_message"] = f"Generated {n} test claims for “{collection['name']}”."
+        st.rerun()
+    if not tests:
+        return
+    df = pd.DataFrame([{"id": t["id"], "claim": t["claim"], "expected": t["expected_verdict"], "note": t["note"],
+                        "delete": False} for t in tests])
+    edited = st.data_editor(
+        df, hide_index=True, use_container_width=True, key=f"tests-{collection['id']}-{len(tests)}",
+        column_config={
+            "id": None,
+            "claim": st.column_config.TextColumn("Claim", width="large"),
+            "expected": st.column_config.SelectboxColumn("Correct answer", options=list(VERDICTS), width="small",
+                                                         help="Change it if the generated answer is wrong."),
+            "note": st.column_config.TextColumn("How it was made", disabled=True, width="medium"),
+            "delete": st.column_config.CheckboxColumn("Delete", width="small"),
+        })
+    if st.button("Save test-claim changes"):
+        for _, row in edited.iterrows():
+            if row["delete"]:
+                db.delete_test_claim(row["id"])
+            else:
+                db.update_test_claim(row["id"], row["claim"], row["expected"], row["note"])
+        st.session_state["lib_message"] = "Test claims updated."
+        st.rerun()
+    st.caption(" · ".join(f"{VERDICT_STYLE[v]['label']}: {sum(t['expected_verdict'] == v for t in tests)}"
+                          for v in VERDICTS[:3]))
+
+
+def _passage(p: dict, collection: dict):
     with st.container(border=True):
         builtin = p["origin"] == "seed"
         a, b = st.columns([5, 1])
@@ -134,9 +198,11 @@ def _passage(p: dict):
                     text = st.text_area("Text", p["text"])
                     if st.form_submit_button("Save changes"):
                         db.update_passage(p["id"], {"title": title, "source": source, "url": url, "date": when, "text": text})
+                        _refresh_tests(collection)
                         st.rerun()
                 if st.button("Delete this passage", key=f"del-{p['id']}"):
                     db.delete_passage(p["id"])
+                    _refresh_tests(collection)
                     st.rerun()
 
 
@@ -179,6 +245,11 @@ def page():
                 st.session_state["lib_topic_next"] = ids[0]
                 st.rerun()
 
+    # Topics without hand-written tests (everything except the built-in Chandrayaan-3 set) use generated ones.
+    if not db.get_test_claims(collection["id"], origin="seed"):
+        with st.container(border=True):
+            _test_claims(collection)
+
     passages = db.get_passages(collection["id"])
     st.markdown(f"#### Passages ({len(passages)})")
     if not passages:
@@ -189,6 +260,6 @@ def page():
     cols = st.columns(2)
     for i, p in enumerate(shown):
         with cols[i % 2]:
-            _passage(p)
+            _passage(p, collection)
     if not shown:
         st.caption(f"No passages match “{query}”.")

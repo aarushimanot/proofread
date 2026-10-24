@@ -21,17 +21,17 @@ from app.pipeline import ProofreadPipeline  # noqa: E402
 ALL_TOPICS = "__all__"
 
 # Verdict colours follow the status palette (good / critical / neutral / warning) and always
-# come with an icon and a word, so the colour never carries the meaning on its own.
+# come with the verdict written out, so the colour never carries the meaning on its own.
 VERDICT_STYLE = {
-    SUPPORTED: {"label": "Supported", "icon": "✅", "color": "#0ca30c", "bg": "rgba(12,163,12,0.10)"},
-    CONTRADICTED: {"label": "Contradicted", "icon": "⛔", "color": "#d03b3b", "bg": "rgba(208,59,59,0.10)"},
-    INSUFFICIENT: {"label": "Insufficient evidence", "icon": "❔", "color": "#898781", "bg": "rgba(137,135,129,0.12)"},
-    CONFLICTING: {"label": "Conflicting evidence", "icon": "⚠️", "color": "#d98e00", "bg": "rgba(250,178,25,0.15)"},
+    SUPPORTED: {"label": "Supported", "color": "#0ca30c", "bg": "rgba(12,163,12,0.10)"},
+    CONTRADICTED: {"label": "Contradicted", "color": "#d03b3b", "bg": "rgba(208,59,59,0.10)"},
+    INSUFFICIENT: {"label": "Insufficient evidence", "color": "#898781", "bg": "rgba(137,135,129,0.12)"},
+    CONFLICTING: {"label": "Conflicting evidence", "color": "#d98e00", "bg": "rgba(250,178,25,0.15)"},
 }
 STANCE_LABEL = {
-    "supports": "✅ Supports",
-    "contradicts": "⛔ Contradicts",
-    "insufficient": "➖ Neither confirms nor refutes",
+    "supports": "Supports",
+    "contradicts": "Contradicts",
+    "insufficient": "Neither confirms nor refutes",
     "not_assessed": "Not relevant",
 }
 
@@ -40,6 +40,18 @@ STANCE_LABEL = {
 def get_pipeline() -> ProofreadPipeline:
     """Load spaCy, MiniLM and the NLI model once and share them across every page and user."""
     return ProofreadPipeline()
+
+
+@st.cache_resource(show_spinner=False)
+def backfill_test_claims() -> int:
+    """Once per server start: give every topic that has passages but no test claims a generated set."""
+    from app import claimgen
+    nlp, made = get_pipeline().nlp, 0
+    for c in db.get_collections():
+        if c["passage_count"] and not db.get_test_claims(c["id"]):
+            db.replace_auto_test_claims(c["id"], claimgen.generate(nlp, db.get_passages(c["id"]), c))
+            made += 1
+    return made
 
 
 def topic_options() -> tuple[list[str], dict]:
@@ -72,7 +84,7 @@ def verdict_box(result: dict) -> None:
         conf += f" ({result['confidence']:.0%})"
     st.markdown(
         f"""<div style="border-left:6px solid {s['color']};background:{s['bg']};padding:14px 18px;border-radius:10px;margin:6px 0 12px">
-        <div style="font-size:1.35rem;font-weight:700">{s['icon']} {html.escape(s['label']).upper()}</div>
+        <div style="font-size:1.15rem;font-weight:650;letter-spacing:.04em;color:{s['color']}">{html.escape(s['label']).upper()}</div>
         <div style="opacity:.8;margin-top:2px">{conf_label}: <b>{html.escape(conf)}</b> ·
         checked against <b>{html.escape(topic_name(result['collection_id']))}</b> ({result['passages_searched']} passages)</div>
         <div style="margin-top:8px">{html.escape(result['summary'])}</div></div>""",
@@ -119,7 +131,7 @@ def _key_sentence_note(item: dict) -> str | None:
         why = f"this sentence most strongly contradicts the claim ({probs['contradiction']:.0%})"
     else:
         why = "this is the sentence closest to the claim, but it doesn't settle it"
-    return f"🔑 **Key sentence** (underlined): {why}."
+    return f"**Key sentence** (underlined): {why}."
 
 
 def evidence_card(item: dict, threshold: float) -> None:

@@ -17,13 +17,21 @@ from ui.common import (ALL_TOPICS, VERDICT_STYLE, get_pipeline, render_result, r
 ONE, EVERY = "One claim", "Every claim in the post"
 
 
-def _examples() -> list[dict]:
-    """Single-claim test claims plus the multi-claim test posts, for the 'Load example' box."""
-    items = [{"key": t["id"], "label": f"{t['id']} · {t['claim']}", "post": t["post_text"],
-              "topic": t["collection_id"], "mode": ONE} for t in db.get_test_claims()]
+def _example_label(t: dict) -> str:
+    if t.get("origin") == "auto":    # ids look like EIFF-AUTO-03-eiffel-tower
+        return f"Auto {t['id'].split('-AUTO-')[1][:2]} · {t['claim']}"
+    return f"{t['id']} · {t['claim']}"
+
+
+def _examples(topic: str) -> list[dict]:
+    """The chosen topic's test claims (hand-written or auto-generated) and multi-claim posts."""
+    collection_id = None if topic == ALL_TOPICS else topic
+    items = [{"key": t["id"], "label": _example_label(t), "post": t["post_text"],
+              "topic": t["collection_id"], "mode": ONE} for t in db.get_test_claims(collection_id)]
     with open(config.MULTI_CLAIM_TESTS_PATH, encoding="utf-8") as f:
         items += [{"key": m["id"], "label": f"{m['id']} · multi-claim post ({len(m['claims'])} claims)",
-                   "post": m["post_text"], "topic": m["collection_id"], "mode": EVERY} for m in json.load(f)]
+                   "post": m["post_text"], "topic": m["collection_id"], "mode": EVERY} for m in json.load(f)
+                  if collection_id in (None, m["collection_id"])]
     return items
 
 
@@ -33,8 +41,13 @@ def _reset_results():
     st.session_state["run_id"] = uuid.uuid4().hex[:8]   # fresh keys for new review forms
 
 
+def _topic_changed():
+    st.session_state["example"] = None
+    _reset_results()
+
+
 def _load_example():
-    ex = next((e for e in _examples() if e["label"] == st.session_state.get("example")), None)
+    ex = next((e for e in _examples(st.session_state["topic"]) if e["label"] == st.session_state.get("example")), None)
     if ex:
         st.session_state.update(post=ex["post"], topic=ex["topic"], mode=ex["mode"], claim="")
         _reset_results()
@@ -56,9 +69,14 @@ def page():
     if st.session_state["topic"] not in ids:
         st.session_state["topic"] = ALL_TOPICS
     left, right = st.columns([2, 3])
-    left.selectbox("Check against topic", ids, format_func=labels.get, key="topic", on_change=_reset_results)
-    right.selectbox("Load example (optional)", [e["label"] for e in _examples()], index=None,
-                    placeholder="Choose a test claim or multi-claim post…", key="example", on_change=_load_example)
+    left.selectbox("Check against topic", ids, format_func=labels.get, key="topic", on_change=_topic_changed)
+    examples = _examples(st.session_state["topic"])
+    if st.session_state.get("example") not in [e["label"] for e in examples]:
+        st.session_state["example"] = None
+    right.selectbox("Load example (optional)", [e["label"] for e in examples], index=None, key="example",
+                    on_change=_load_example,
+                    placeholder="Choose a test claim…" if examples else
+                    "No test claims for this topic yet (add sources in the Lie-brary)")
     collection_id = None if st.session_state["topic"] == ALL_TOPICS else st.session_state["topic"]
     if collection_id and db.get_collection(collection_id) and not db.get_passages(collection_id):
         st.warning("This topic has no reference passages yet, so every claim will be “Insufficient evidence”. "
@@ -139,13 +157,13 @@ def _every_claim(pipeline, collection_id):
     st.markdown(f"**{len(out['claims'])} claim(s) found.**")
     cols = st.columns(4)
     for col, (verdict, n) in zip(cols, out["counts"].items()):
-        col.metric(f"{VERDICT_STYLE[verdict]['icon']} {VERDICT_STYLE[verdict]['label']}", n)
+        col.metric(VERDICT_STYLE[verdict]["label"], n)
     ignored = [c for c in out["candidates"] if c["sentence"] not in {r["claim"] for r in out["claims"]}]
     if ignored:
         st.caption("Not treated as claims: " + " · ".join(f"“{c['sentence']}”" for c in ignored))
 
     st.subheader("3 · Review each claim")
-    tabs = st.tabs([f"{VERDICT_STYLE[r['verdict']]['icon']} Claim {i + 1}" for i, r in enumerate(out["claims"])])
+    tabs = st.tabs([f"Claim {i + 1}: {VERDICT_STYLE[r['verdict']]['label']}" for i, r in enumerate(out["claims"])])
     for i, (tab, r) in enumerate(zip(tabs, out["claims"])):
         with tab:
             st.markdown(f"**Claim {i + 1}:** {r['claim']}")

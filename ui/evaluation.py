@@ -8,39 +8,60 @@ import json
 import pandas as pd
 import streamlit as st
 
-from app import config
+from app import config, db
 from app.aggregator import VERDICTS
 from ui.charts import GROUP_COLORS, hbar, heatmap, line
 from ui.common import VERDICT_STYLE, get_pipeline
 
-SUMMARY_PATH = config.RESULTS_DIR / "eval_summary.json"
 LABEL = {v: VERDICT_STYLE[v]["label"] for v in VERDICTS}
 GROUP_NAME = {"full": "Proofread", "baseline": "Baseline", "ablation": "Ablation"}
 
 
-def _load() -> dict | None:
-    if not SUMMARY_PATH.exists():
-        return None
-    return json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
+def _summary_path(topic_id: str | None):
+    return config.RESULTS_DIR / (f"eval_summary__{topic_id}.json" if topic_id else "eval_summary.json")
 
 
-def _run():
+def _load(topic_id: str | None) -> dict | None:
+    path = _summary_path(topic_id)
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def _run(topic_id: str | None, n: int):
     import evaluate  # backend/evaluate.py (backend is on sys.path via ui.common)
-    with st.spinner("Running the 14 claims through 10 systems… this takes a minute or two."):
-        evaluate.run_evaluation(get_pipeline())
+    with st.spinner(f"Running {n} claims through 10 systems… this can take a minute or two."):
+        evaluate.run_evaluation(get_pipeline(), topic_id)
     st.rerun()
+
+
+def _test_sets() -> dict:
+    """None = the built-in hand-written set; otherwise topics added in the app that have test claims."""
+    sets = {None: f"Built-in: Chandrayaan-3 ({len(db.get_test_claims(origin='seed'))} hand-written claims)"}
+    for c in db.get_collections():
+        n = len(db.get_test_claims(c["id"], origin="auto"))
+        if n:
+            sets[c["id"]] = f"{c['name']} ({n} auto-generated claims)"
+    return sets
 
 
 def page():
     st.header("Evaluation")
-    s = _load()
+    sets = _test_sets()
     top = st.columns([4, 1])
-    top[0].caption("14 labelled Chandrayaan-3 claims (T01–T14) plus 4 multi-claim posts. All 14 claims were seen "
+    topic_id = top[0].selectbox("Test set", list(sets), format_func=sets.get)
+    n_claims = len(db.get_test_claims(origin="seed") if topic_id is None else db.get_test_claims(topic_id))
+    top[1].write("")
+    if top[1].button("Run evaluation" if _load(topic_id) is None else "Re-run evaluation"):
+        _run(topic_id, n_claims)
+    if topic_id is None:
+        st.caption("14 hand-written Chandrayaan-3 claims (T01–T14) plus 4 multi-claim posts. All 14 claims were seen "
                    "while the system was being built, so these numbers are optimistic: there is no unseen test set.")
-    if top[1].button("Re-run evaluation"):
-        _run()
+    else:
+        st.warning("These test claims were **generated automatically** from this topic's own passages. They show "
+                   "whether Proofread can confirm or reject facts stated in its sources, not how it does on real "
+                   "social media posts. Review and correct the claims in the Lie-brary before relying on the numbers.")
+    s = _load(topic_id)
     if s is None:
-        st.info("No results yet. Click **Re-run evaluation**, or run `./start.sh eval` in the terminal.")
+        st.info("No results for this test set yet. Click **Run evaluation**.")
         return
     st.caption(f"Results generated {s['generated']} on {s['device']}.")
 
@@ -101,21 +122,30 @@ def page():
                              x_title="Relevance threshold", y_domain=[0, 1]), use_container_width=True)
 
     # ---------------------------------------------------------------- multi-claim
+    m = s.get("multi")
+    if m:
+        _multi_section(m)
+
+    _every_claim(s, topic_id)
+
+
+def _multi_section(m: dict):
     st.subheader("Multi-claim posts")
-    m = s["multi"]
     cols = st.columns(3)
     cols[0].metric("Claims found", f"{m['claim_recall']:.0%}", help=f"of the {m['gold_claims']} claims written into the 4 posts")
     cols[1].metric("Found sentences that were real claims", f"{m['claim_precision']:.0%}",
                    help=f"{m['extracted_claims']} sentences were treated as claims")
     cols[2].metric("Correct verdict on claims found", f"{m['verdict_accuracy_on_found']:.0%}")
     for d in m["details"]:
-        lines = [f"{'✅' if p['predicted'] == p['expected'] else '❌'} “{p['gold']}” · expected {LABEL[p['expected']]}, "
+        lines = [f"{'Correct' if p['predicted'] == p['expected'] else 'Wrong'}: “{p['gold']}” · expected {LABEL[p['expected']]}, "
                  + (f"got {LABEL[p['predicted']]}" if p["extracted"] else "**not found**") for p in d["pairs"]]
-        lines += [f"➕ also treated as a claim: “{x}”" for x in d["extra_claims"]]
+        lines += [f"Extra: also treated as a claim: “{x}”" for x in d["extra_claims"]]
         with st.expander(f"{d['id']} · {d['topic']}"):
             st.markdown("\n".join(f"- {line_}" for line_ in lines))
 
-    # ---------------------------------------------------------------- per claim
+
+
+def _every_claim(s: dict, topic_id):
     st.subheader("Every claim")
     rows = pd.DataFrame(s["rows"])
     only_wrong = st.toggle("Only failures")
@@ -125,11 +155,13 @@ def page():
         view = view[view["topic"].isin(topic_f)]
     if only_wrong:
         view = view[~view["correct"]]
-    view = view.assign(result=view["correct"].map({True: "✅", False: "❌"}),
+    view = view.assign(result=view["correct"].map({True: "Correct", False: "Wrong"}),
                        expected=view["expected"].map(LABEL), predicted=view["predicted"].map(LABEL))
     st.dataframe(view[["result", "id", "claim", "expected", "predicted", "confidence_label", "top_passage", "note"]],
                  hide_index=True, use_container_width=True)
 
+    if topic_id is not None:
+        return
     st.subheader("What the results taught us")
     st.markdown("""
 - **The event-alignment gate is the most important safety part.** Switching it off makes the system call

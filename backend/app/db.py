@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS test_claims (
     post_text         TEXT NOT NULL,
     claim             TEXT NOT NULL,
     expected_verdict  TEXT NOT NULL,
-    note              TEXT NOT NULL DEFAULT ''
+    note              TEXT NOT NULL DEFAULT '',
+    origin            TEXT NOT NULL DEFAULT 'seed'    -- 'seed' (hand-written) or 'auto' (generated)
 );
 CREATE TABLE IF NOT EXISTS reviews (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,7 +88,7 @@ CREATE TABLE IF NOT EXISTS checks (
 # Columns added after the first version; added automatically to older database files.
 MIGRATIONS = {
     "passages": {"collection_id": "TEXT NOT NULL DEFAULT 'chandrayaan-3'", "origin": "TEXT NOT NULL DEFAULT 'seed'"},
-    "test_claims": {"collection_id": "TEXT NOT NULL DEFAULT 'chandrayaan-3'"},
+    "test_claims": {"collection_id": "TEXT NOT NULL DEFAULT 'chandrayaan-3'", "origin": "TEXT NOT NULL DEFAULT 'seed'"},
     "reviews": {"collection_id": "TEXT"},
     "checks": {"collection_id": "TEXT"},
 }
@@ -168,7 +169,8 @@ def sync_seed_data() -> None:
             [(t["id"], t["collection_id"], t["post_text"], t["claim"], t["expected_verdict"],
               t.get("note", "")) for t in tests])
         test_ids = [t["id"] for t in tests]
-        conn.execute(f"DELETE FROM test_claims WHERE id NOT IN ({', '.join('?' * len(test_ids))})", test_ids)
+        conn.execute(f"DELETE FROM test_claims WHERE origin = 'seed' AND id NOT IN ({', '.join('?' * len(test_ids))})",
+                     test_ids)
 
 
 def _import_legacy_review_log() -> None:
@@ -227,6 +229,7 @@ def delete_collection(collection_id: str) -> None:
         raise ReadOnly("Built-in topics can't be deleted. Remove their file from data/topics/ instead.")
     with connect() as conn:
         conn.execute("DELETE FROM passages WHERE collection_id = ?", (collection_id,))
+        conn.execute("DELETE FROM test_claims WHERE collection_id = ?", (collection_id,))
         conn.execute("DELETE FROM collections WHERE id = ?", (collection_id,))
 
 
@@ -285,13 +288,38 @@ def delete_passage(passage_id: str) -> None:
 
 
 # ------------------------------------------------------------------ test claims
-def get_test_claims(collection_id: str | None = None) -> list[dict]:
+def get_test_claims(collection_id: str | None = None, origin: str | None = None) -> list[dict]:
+    """Test claims, optionally only one topic's and/or only 'seed' (hand-written) or 'auto' ones."""
+    where, args = [], []
+    if collection_id:
+        where.append("collection_id = ?")
+        args.append(collection_id)
+    if origin:
+        where.append("origin = ?")
+        args.append(origin)
+    sql = "SELECT * FROM test_claims" + (" WHERE " + " AND ".join(where) if where else "") + " ORDER BY rowid"
     with connect() as conn:
-        if collection_id:
-            rows = conn.execute("SELECT * FROM test_claims WHERE collection_id = ? ORDER BY id", (collection_id,))
-        else:
-            rows = conn.execute("SELECT * FROM test_claims ORDER BY id")
-        return [dict(r) for r in rows]
+        return [dict(r) for r in conn.execute(sql, args)]
+
+
+def replace_auto_test_claims(collection_id: str, items: list[dict]) -> None:
+    """Swap a topic's auto-generated test claims for a new set (hand-written ones are untouched)."""
+    with connect() as conn:
+        conn.execute("DELETE FROM test_claims WHERE collection_id = ? AND origin = 'auto'", (collection_id,))
+        conn.executemany(
+            "INSERT OR REPLACE INTO test_claims (id, collection_id, post_text, claim, expected_verdict, note, origin) "
+            "VALUES (:id, :collection_id, :post_text, :claim, :expected_verdict, :note, 'auto')", items)
+
+
+def update_test_claim(claim_id: str, claim: str, expected_verdict: str, note: str) -> None:
+    with connect() as conn:
+        conn.execute("UPDATE test_claims SET claim = ?, expected_verdict = ?, note = ? WHERE id = ? AND origin = 'auto'",
+                     (claim.strip(), expected_verdict, note.strip(), claim_id))
+
+
+def delete_test_claim(claim_id: str) -> None:
+    with connect() as conn:
+        conn.execute("DELETE FROM test_claims WHERE id = ? AND origin = 'auto'", (claim_id,))
 
 
 # ------------------------------------------------------------------ reviews
