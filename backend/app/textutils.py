@@ -45,8 +45,9 @@ def clean_text(text: str) -> str:
     # Emoji and pictographs (most live outside the Basic Multilingual Plane) are often
     # used instead of a full stop, so turn them into a line break first...
     text = re.sub(r"[\U00010000-\U0010FFFF☀-➿️‍]+", "\n", text)
+    text = re.sub(r"[ \t]+\n", "\n", text)   # so "history! \n" is seen as ending in "!"
     # ...then a line break before a capital letter becomes a sentence boundary.
-    text = re.sub(r"(?<![.!?:])[ \t]*\n\s*(?=[A-Z0-9])", ". ", text)
+    text = re.sub(r"(?<![.!?:])\n\s*(?=[A-Z0-9])", ". ", text)
     return re.sub(r"\s+", " ", text).strip()
 
 

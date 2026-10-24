@@ -1,0 +1,661 @@
+{
+  "generated": "2026-10-24T20:18:12+00:00",
+  "device": "mps",
+  "settings": {
+    "relevance_threshold": 0.45,
+    "top_k": 3,
+    "entailment_threshold": 0.6,
+    "contradiction_threshold": 0.6,
+    "mismatch_nudge": 0.35
+  },
+  "full": {
+    "n": 14,
+    "correct": 13,
+    "accuracy": 0.9285714285714286,
+    "macro_f1": 0.9629629629629629,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "predicted": 5
+      },
+      "CONTRADICTED": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.888888888888889,
+        "support": 5,
+        "predicted": 4
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 4,
+        "predicted": 4
+      }
+    },
+    "false_contradiction_rate": 0.0,
+    "false_support_rate": 0.0,
+    "sent_to_human_rate": 0.07142857142857142
+  },
+  "by_topic": {
+    "chandrayaan-3": {
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286
+    }
+  },
+  "confusion": {
+    "SUPPORTED": {
+      "SUPPORTED": 5,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "CONFLICTING": 0
+    },
+    "CONTRADICTED": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 4,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "CONFLICTING": 1
+    },
+    "INSUFFICIENT_EVIDENCE": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 4,
+      "CONFLICTING": 0
+    },
+    "CONFLICTING": {
+      "SUPPORTED": 0,
+      "CONTRADICTED": 0,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "CONFLICTING": 0
+    }
+  },
+  "calibration": [
+    {
+      "label": "High",
+      "n": 11,
+      "accuracy": 1.0
+    },
+    {
+      "label": "Medium",
+      "n": 1,
+      "accuracy": 1.0
+    },
+    {
+      "label": "Low",
+      "n": 2,
+      "accuracy": 0.5
+    }
+  ],
+  "e2e": {
+    "n": 14,
+    "correct": 13,
+    "accuracy": 0.9285714285714286,
+    "macro_f1": 0.9629629629629629,
+    "per_class": {
+      "SUPPORTED": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "predicted": 5
+      },
+      "CONTRADICTED": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.888888888888889,
+        "support": 5,
+        "predicted": 4
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 4,
+        "predicted": 4
+      }
+    },
+    "false_contradiction_rate": 0.0,
+    "false_support_rate": 0.0,
+    "sent_to_human_rate": 0.07142857142857142
+  },
+  "extraction": {
+    "found": 14,
+    "exact": 13
+  },
+  "speed": {
+    "mean_seconds": 0.13064285714285714
+  },
+  "systems": {
+    "Keyword match": {
+      "group": "baseline",
+      "description": "Supported if ≥50% of the claim's content words appear in one passage; otherwise insufficient. Can never say 'contradicted'.",
+      "n": 14,
+      "correct": 8,
+      "accuracy": 0.5714285714285714,
+      "macro_f1": 0.49404761904761907,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.6666666666666666,
+      "sent_to_human_rate": 0.0
+    },
+    "Similarity only": {
+      "group": "baseline",
+      "description": "Supported if the most similar passage has similarity ≥ 0.70; otherwise insufficient. Can never say 'contradicted'.",
+      "n": 14,
+      "correct": 8,
+      "accuracy": 0.5714285714285714,
+      "macro_f1": 0.4646464646464647,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.3333333333333333,
+      "sent_to_human_rate": 0.0
+    },
+    "Plain NLI": {
+      "group": "baseline",
+      "description": "Retrieval + NLI with no relevance threshold and neither heuristic.",
+      "n": 14,
+      "correct": 10,
+      "accuracy": 0.7142857142857143,
+      "macro_f1": 0.8023809523809523,
+      "false_contradiction_rate": 0.25,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.21428571428571427
+    },
+    "Proofread (full)": {
+      "group": "full",
+      "description": "The real system: relevance threshold, NLI, number/date check, event-alignment gate.",
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286,
+      "macro_f1": 0.9629629629629629,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.07142857142857142
+    },
+    "− relevance threshold": {
+      "group": "ablation",
+      "description": "Every retrieved passage counts as relevant.",
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286,
+      "macro_f1": 0.9629629629629629,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.07142857142857142
+    },
+    "− number/date check": {
+      "group": "ablation",
+      "description": "No mismatch nudge.",
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286,
+      "macro_f1": 0.9629629629629629,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.07142857142857142
+    },
+    "− event-alignment gate": {
+      "group": "ablation",
+      "description": "Contradictions about other events are kept.",
+      "n": 14,
+      "correct": 10,
+      "accuracy": 0.7142857142857143,
+      "macro_f1": 0.8023809523809523,
+      "false_contradiction_rate": 0.25,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.21428571428571427
+    },
+    "+ sentence-level NLI": {
+      "group": "ablation",
+      "description": "Each passage judged by its most decisive sentence.",
+      "n": 14,
+      "correct": 12,
+      "accuracy": 0.8571428571428571,
+      "macro_f1": 0.9259259259259259,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.14285714285714285
+    },
+    "top_k = 1": {
+      "group": "ablation",
+      "description": "Only the single most similar passage is used.",
+      "n": 14,
+      "correct": 12,
+      "accuracy": 0.8571428571428571,
+      "macro_f1": 0.8493265993265994,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.1111111111111111,
+      "sent_to_human_rate": 0.0
+    },
+    "top_k = 5": {
+      "group": "ablation",
+      "description": "The five most similar passages are used.",
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286,
+      "macro_f1": 0.9629629629629629,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.07142857142857142
+    }
+  },
+  "multi": {
+    "posts": 4,
+    "gold_claims": 11,
+    "extracted_claims": 12,
+    "claim_recall": 1.0,
+    "claim_precision": 0.9166666666666666,
+    "verdict_accuracy_on_found": 0.8181818181818182,
+    "verdict_correct": 9,
+    "details": [
+      {
+        "id": "M01",
+        "topic": "chandrayaan-3",
+        "pairs": [
+          {
+            "gold": "Chandrayaan-3 was launched on 14 July 2023.",
+            "expected": "SUPPORTED",
+            "extracted": "Chandrayaan-3 was launched on 14 July 2023.",
+            "predicted": "SUPPORTED"
+          },
+          {
+            "gold": "The Pragyan rover has four wheels.",
+            "expected": "CONTRADICTED",
+            "extracted": "The Pragyan rover has four wheels.",
+            "predicted": "CONTRADICTED"
+          }
+        ],
+        "extra_claims": [
+          "Big week in space history!"
+        ]
+      },
+      {
+        "id": "M02",
+        "topic": "constitution-of-india",
+        "pairs": [
+          {
+            "gold": "The Constitution of India was adopted on 26 November 1949.",
+            "expected": "SUPPORTED",
+            "extracted": "The Constitution of India was adopted on 26 November 1949.",
+            "predicted": "SUPPORTED"
+          },
+          {
+            "gold": "It came into force on 26 January 1950.",
+            "expected": "SUPPORTED",
+            "extracted": "It came into force on 26 January 1950.",
+            "predicted": "SUPPORTED"
+          },
+          {
+            "gold": "B. R. Ambedkar chaired the Drafting Committee.",
+            "expected": "SUPPORTED",
+            "extracted": "B. R. Ambedkar chaired the Drafting Committee.",
+            "predicted": "SUPPORTED"
+          }
+        ],
+        "extra_claims": []
+      },
+      {
+        "id": "M03",
+        "topic": "cricket-world-cup-2023",
+        "pairs": [
+          {
+            "gold": "Australia won the 2023 World Cup final in Ahmedabad.",
+            "expected": "SUPPORTED",
+            "extracted": "Australia won the 2023 World Cup final in Ahmedabad.",
+            "predicted": "CONTRADICTED"
+          },
+          {
+            "gold": "Travis Head scored 137 in the final.",
+            "expected": "SUPPORTED",
+            "extracted": "Travis Head scored 137 in the final.",
+            "predicted": "INSUFFICIENT_EVIDENCE"
+          },
+          {
+            "gold": "Virat Kohli scored 900 runs in the tournament.",
+            "expected": "CONTRADICTED",
+            "extracted": "Virat Kohli scored 900 runs in the tournament.",
+            "predicted": "CONTRADICTED"
+          }
+        ],
+        "extra_claims": []
+      },
+      {
+        "id": "M04",
+        "topic": "chandrayaan-3",
+        "pairs": [
+          {
+            "gold": "Chandrayaan-3 landed near the Moon's south pole on 23 August 2023.",
+            "expected": "SUPPORTED",
+            "extracted": "Chandrayaan-3 landed near the Moon's south pole on 23 August 2023.",
+            "predicted": "SUPPORTED"
+          },
+          {
+            "gold": "The mission cost only 615 crore rupees.",
+            "expected": "INSUFFICIENT_EVIDENCE",
+            "extracted": "The mission cost only 615 crore rupees.",
+            "predicted": "INSUFFICIENT_EVIDENCE"
+          },
+          {
+            "gold": "The Pragyan rover found sulphur on the Moon.",
+            "expected": "SUPPORTED",
+            "extracted": "The Pragyan rover found sulphur on the Moon.",
+            "predicted": "SUPPORTED"
+          }
+        ],
+        "extra_claims": []
+      }
+    ]
+  },
+  "sensitivity": [
+    {
+      "threshold": 0.35,
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286,
+      "macro_f1": 0.9629629629629629,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.07142857142857142
+    },
+    {
+      "threshold": 0.45,
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286,
+      "macro_f1": 0.9629629629629629,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.0,
+      "sent_to_human_rate": 0.07142857142857142
+    },
+    {
+      "threshold": 0.55,
+      "n": 14,
+      "correct": 13,
+      "accuracy": 0.9285714285714286,
+      "macro_f1": 0.9326599326599326,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.1111111111111111,
+      "sent_to_human_rate": 0.0
+    },
+    {
+      "threshold": 0.65,
+      "n": 14,
+      "correct": 12,
+      "accuracy": 0.8571428571428571,
+      "macro_f1": 0.8592592592592593,
+      "false_contradiction_rate": 0.0,
+      "false_support_rate": 0.1111111111111111,
+      "sent_to_human_rate": 0.0
+    }
+  ],
+  "rows": [
+    {
+      "id": "T01",
+      "topic": "chandrayaan-3",
+      "claim": "Chandrayaan-3 was launched on 14 July 2023 from Sriharikota.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.9316,
+      "confidence_label": "High",
+      "top_passage": "CY3-02 Launch of Chandrayaan-3 from Sriharikota",
+      "top_similarity": 0.9097,
+      "relevant_passages": 3,
+      "stances": "CY3-02:supports; CY3-04:insufficient; CY3-16:insufficient",
+      "extracted_claim": "Chandrayaan-3 was launched on 14 July 2023 from Sriharikota.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.285,
+      "note": "Straightforward launch date and site; directly stated in CY3-02."
+    },
+    {
+      "id": "T02",
+      "topic": "chandrayaan-3",
+      "claim": "The Vikram lander touched down near the Moon's south pole on 23 August 2023.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.9959,
+      "confidence_label": "High",
+      "top_passage": "CY3-05 Vikram lander touches down near the lunar south pole",
+      "top_similarity": 0.8406,
+      "relevant_passages": 3,
+      "stances": "CY3-05:supports; CY3-16:insufficient; CY3-13:insufficient",
+      "extracted_claim": "The Vikram lander touched down near the Moon's south pole on 23 August 2023.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.152,
+      "note": "Landing date and region; CY3-05. 'Touched down' paraphrases 'soft-landed'."
+    },
+    {
+      "id": "T03",
+      "topic": "chandrayaan-3",
+      "claim": "The Pragyan rover confirmed the presence of sulphur on the lunar surface.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.9869,
+      "confidence_label": "High",
+      "top_passage": "CY3-10 Sulphur detected on the lunar surface by Pragyan",
+      "top_similarity": 0.7722,
+      "relevant_passages": 3,
+      "stances": "CY3-10:supports; CY3-08:insufficient; CY3-12:insufficient",
+      "extracted_claim": "The Pragyan rover confirmed the presence of sulphur on the lunar surface.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.124,
+      "note": "Sulphur finding; CY3-10."
+    },
+    {
+      "id": "T04",
+      "topic": "chandrayaan-3",
+      "claim": "India became the first country to land near the lunar south pole.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.7605,
+      "confidence_label": "Medium",
+      "top_passage": "CY3-06 India's place in lunar landing history",
+      "top_similarity": 0.8114,
+      "relevant_passages": 3,
+      "stances": "CY3-06:supports; CY3-05:insufficient; CY3-14:insufficient",
+      "extracted_claim": "India became the first country to land near the lunar south pole.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.163,
+      "note": "First near the south pole; CY3-06."
+    },
+    {
+      "id": "T05",
+      "topic": "chandrayaan-3",
+      "claim": "Chandrayaan-3 landed on the Moon on 15 August 2023.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 1.0,
+      "confidence_label": "High",
+      "top_passage": "CY3-04 Lunar orbit insertion and lander separation",
+      "top_similarity": 0.8529,
+      "relevant_passages": 3,
+      "stances": "CY3-04:insufficient; CY3-05:contradicts; CY3-16:insufficient",
+      "extracted_claim": "Chandrayaan-3 landed on the Moon on 15 August 2023, right on Independence Day.",
+      "extraction": "contains",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.16,
+      "note": "Wrong date: the landing was on 23 August 2023 (CY3-05)."
+    },
+    {
+      "id": "T06",
+      "topic": "chandrayaan-3",
+      "claim": "The rover deployed by Chandrayaan-3 was named Pragati.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONFLICTING",
+      "correct": false,
+      "confidence": 0.9979,
+      "confidence_label": "Low",
+      "top_passage": "CY3-08 Pragyan rover",
+      "top_similarity": 0.6866,
+      "relevant_passages": 3,
+      "stances": "CY3-08:supports; CY3-01:insufficient; CY3-07:contradicts",
+      "extracted_claim": "The rover deployed by Chandrayaan-3 was named Pragati.",
+      "extraction": "exact",
+      "predicted_e2e": "CONFLICTING",
+      "seconds": 0.056,
+      "note": "Wrong rover name: the rover is Pragyan (CY3-01, CY3-08)."
+    },
+    {
+      "id": "T07",
+      "topic": "chandrayaan-3",
+      "claim": "Chandrayaan-3 landed near the Moon's north pole.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 0.9979,
+      "confidence_label": "High",
+      "top_passage": "CY3-05 Vikram lander touches down near the lunar south pole",
+      "top_similarity": 0.7303,
+      "relevant_passages": 3,
+      "stances": "CY3-05:contradicts; CY3-04:insufficient; CY3-06:insufficient",
+      "extracted_claim": "Chandrayaan-3 landed near the Moon's north pole.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.156,
+      "note": "Wrong location: the landing was near the lunar south pole (CY3-05, CY3-06)."
+    },
+    {
+      "id": "T08",
+      "topic": "chandrayaan-3",
+      "claim": "The Pragyan rover has four wheels and carried two instruments.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 0.9999,
+      "confidence_label": "High",
+      "top_passage": "CY3-08 Pragyan rover",
+      "top_similarity": 0.6693,
+      "relevant_passages": 2,
+      "stances": "CY3-08:contradicts; CY3-10:insufficient; CY3-12:not_assessed",
+      "extracted_claim": "The Pragyan rover has four wheels and carried two instruments.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.133,
+      "note": "Wrong number: Pragyan is six-wheeled (CY3-08). Half of the claim (two instruments) is correct, which makes this harder."
+    },
+    {
+      "id": "T09",
+      "topic": "chandrayaan-3",
+      "claim": "The Chandrayaan-3 mission cost less than the budget of the movie Interstellar.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": null,
+      "confidence_label": "Low",
+      "top_passage": "CY3-01 Chandrayaan-3 mission overview",
+      "top_similarity": 0.4387,
+      "relevant_passages": 0,
+      "stances": "CY3-01:not_assessed; CY3-02:not_assessed; CY3-04:not_assessed",
+      "extracted_claim": "The Chandrayaan-3 mission cost less than the budget of the movie Interstellar.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.067,
+      "note": "Plausible and widely shared, but no passage mentions the mission cost or the movie."
+    },
+    {
+      "id": "T10",
+      "topic": "chandrayaan-3",
+      "claim": "The Pragyan rover found water ice at the Chandrayaan-3 landing site.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": 0.9984,
+      "confidence_label": "High",
+      "top_passage": "CY3-08 Pragyan rover",
+      "top_similarity": 0.6584,
+      "relevant_passages": 3,
+      "stances": "CY3-08:insufficient; CY3-01:insufficient; CY3-10:insufficient",
+      "extracted_claim": "The Pragyan rover found water ice at the Chandrayaan-3 landing site.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.134,
+      "note": "The corpus lists the elements detected but says nothing about water ice, so the correct answer is insufficient evidence, not contradicted."
+    },
+    {
+      "id": "T11",
+      "topic": "chandrayaan-3",
+      "claim": "The Chandrayaan-3 mission was led by project director P. Veeramuthuvel.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": 0.9994,
+      "confidence_label": "High",
+      "top_passage": "CY3-01 Chandrayaan-3 mission overview",
+      "top_similarity": 0.6621,
+      "relevant_passages": 3,
+      "stances": "CY3-01:insufficient; CY3-02:insufficient; CY3-07:insufficient",
+      "extracted_claim": "The Chandrayaan-3 mission was led by project director P. Veeramuthuvel.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.124,
+      "note": "The project director is not mentioned anywhere in the corpus."
+    },
+    {
+      "id": "T12",
+      "topic": "chandrayaan-3",
+      "claim": "Over 8 million people watched the Chandrayaan-3 landing live on YouTube.",
+      "expected": "INSUFFICIENT_EVIDENCE",
+      "predicted": "INSUFFICIENT_EVIDENCE",
+      "correct": true,
+      "confidence": 0.9993,
+      "confidence_label": "High",
+      "top_passage": "CY3-02 Launch of Chandrayaan-3 from Sriharikota",
+      "top_similarity": 0.5255,
+      "relevant_passages": 3,
+      "stances": "CY3-02:insufficient; CY3-01:insufficient; CY3-04:insufficient",
+      "extracted_claim": "Over 8 million people watched the Chandrayaan-3 landing live on YouTube.",
+      "extraction": "exact",
+      "predicted_e2e": "INSUFFICIENT_EVIDENCE",
+      "seconds": 0.164,
+      "note": "Viewership figures are not covered by any passage, even though landing passages are topically similar."
+    },
+    {
+      "id": "T13",
+      "topic": "chandrayaan-3",
+      "claim": "ISRO's Moon rover drove more than a hundred metres before going to sleep.",
+      "expected": "SUPPORTED",
+      "predicted": "SUPPORTED",
+      "correct": true,
+      "confidence": 0.99,
+      "confidence_label": "High",
+      "top_passage": "CY3-12 Rover traverse and sleep mode",
+      "top_similarity": 0.6118,
+      "relevant_passages": 2,
+      "stances": "CY3-12:supports; CY3-15:insufficient; CY3-01:not_assessed",
+      "extracted_claim": "ISRO's Moon rover drove more than a hundred metres before going to sleep.",
+      "extraction": "exact",
+      "predicted_e2e": "SUPPORTED",
+      "seconds": 0.057,
+      "note": "Tricky paraphrase: 'more than a hundred metres' and 'going to sleep' paraphrase 'over 100 metres' and 'put into sleep mode' in CY3-12, and the rover is not named."
+    },
+    {
+      "id": "T14",
+      "topic": "chandrayaan-3",
+      "claim": "India became the third country to soft-land on the Moon.",
+      "expected": "CONTRADICTED",
+      "predicted": "CONTRADICTED",
+      "correct": true,
+      "confidence": 1.0,
+      "confidence_label": "High",
+      "top_passage": "CY3-06 India's place in lunar landing history",
+      "top_similarity": 0.8343,
+      "relevant_passages": 3,
+      "stances": "CY3-06:contradicts; CY3-05:insufficient; CY3-14:insufficient",
+      "extracted_claim": "India became the third country to soft-land on the Moon.",
+      "extraction": "exact",
+      "predicted_e2e": "CONTRADICTED",
+      "seconds": 0.054,
+      "note": "Tricky subtle number change: India was the fourth country (CY3-06). NLI models often miss ordinal changes."
+    }
+  ]
+}

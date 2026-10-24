@@ -12,9 +12,10 @@ Tables
   checks       history of every /verify call (claim, verdict, confidence, time)
 
 Where passages come from (the `origin` column)
-  "seed"  the built-in Chandrayaan-3 corpus, written by hand in data/references.json.
-          On every startup `sync_seed_data()` copies that file into the database, so
-          seed passages are read-only in the app: change them by editing the JSON.
+  "seed"  the built-in topics (Chandrayaan-3, Constitution of India, Cricket World Cup 2023),
+          written by hand in data/topics/*.json. On every startup `sync_seed_data()`
+          copies those files into the database, so seed passages are read-only in the
+          app: change them by editing the JSON.
   "user"  passages added in the app (typed, pasted or imported from a link). They live
           only in the database and can be edited or deleted in the Lie-brary tab.
 """
@@ -27,11 +28,13 @@ from datetime import datetime, timezone
 
 from . import config
 
-SEED_COLLECTION = {
-    "id": "chandrayaan-3",
-    "name": "Chandrayaan-3",
-    "description": "Built-in example: India's 2023 Moon mission (plus 4 distractor passages on other ISRO missions).",
-}
+SEED_COLLECTION_ID = "chandrayaan-3"   # default topic for older rows and the UI
+
+
+def load_seed_topics() -> list[dict]:
+    """Every built-in topic file in data/topics/ ({id, name, description, passages})."""
+    return [json.load(open(f, encoding="utf-8")) for f in sorted(config.TOPICS_DIR.glob("*.json"))]
+
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS collections (
@@ -132,34 +135,37 @@ def init_db() -> None:
 
 def sync_seed_data() -> None:
     """
-    Copy references.json and test_claims.json into the database.
-    Only rows with origin='seed' are touched, so passages added in the app are never lost.
+    Copy the built-in topic files and test_claims.json into the database.
+    Only rows with origin='seed' are touched, so topics and passages added in the app are never lost.
     """
-    with open(config.REFERENCES_PATH, encoding="utf-8") as f:
-        passages = json.load(f)
+    topics = load_seed_topics()
     with open(config.TEST_CLAIMS_PATH, encoding="utf-8") as f:
         tests = json.load(f)
-    cid = SEED_COLLECTION["id"]
     with connect() as conn:
-        conn.execute(
-            "INSERT INTO collections (id, name, description, origin, created_at) VALUES (?, ?, ?, 'seed', ?) "
-            "ON CONFLICT(id) DO UPDATE SET name=excluded.name, description=excluded.description, origin='seed'",
-            (cid, SEED_COLLECTION["name"], SEED_COLLECTION["description"], now()))
-        conn.executemany(
-            "INSERT INTO passages (id, collection_id, title, source, url, date, text, origin) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, 'seed') ON CONFLICT(id) DO UPDATE SET "
-            "collection_id=excluded.collection_id, title=excluded.title, source=excluded.source, "
-            "url=excluded.url, date=excluded.date, text=excluded.text, origin='seed'",
-            [(p["id"], cid, p["title"], p["source"], p["url"], p["date"], p["text"]) for p in passages])
-        seed_ids = [p["id"] for p in passages]
+        for t in topics:
+            conn.execute(
+                "INSERT INTO collections (id, name, description, origin, created_at) VALUES (?, ?, ?, 'seed', ?) "
+                "ON CONFLICT(id) DO UPDATE SET name=excluded.name, description=excluded.description, origin='seed'",
+                (t["id"], t["name"], t.get("description", ""), now()))
+            conn.executemany(
+                "INSERT INTO passages (id, collection_id, title, source, url, date, text, origin) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 'seed') ON CONFLICT(id) DO UPDATE SET "
+                "collection_id=excluded.collection_id, title=excluded.title, source=excluded.source, "
+                "url=excluded.url, date=excluded.date, text=excluded.text, origin='seed'",
+                [(p["id"], t["id"], p["title"], p["source"], p["url"], p["date"], p["text"]) for p in t["passages"]])
+        # Remove built-in passages/topics whose files or entries were deleted.
+        seed_ids = [p["id"] for t in topics for p in t["passages"]]
         conn.execute(f"DELETE FROM passages WHERE origin = 'seed' AND id NOT IN ({', '.join('?' * len(seed_ids))})",
                      seed_ids)
+        topic_ids = [t["id"] for t in topics]
+        conn.execute(f"DELETE FROM collections WHERE origin = 'seed' AND id NOT IN ({', '.join('?' * len(topic_ids))}) "
+                     "AND id NOT IN (SELECT collection_id FROM passages)", topic_ids)
         conn.executemany(
             "INSERT INTO test_claims (id, collection_id, post_text, claim, expected_verdict, note) "
             "VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET collection_id=excluded.collection_id, "
             "post_text=excluded.post_text, claim=excluded.claim, "
             "expected_verdict=excluded.expected_verdict, note=excluded.note",
-            [(t["id"], t.get("collection_id", cid), t["post_text"], t["claim"], t["expected_verdict"],
+            [(t["id"], t["collection_id"], t["post_text"], t["claim"], t["expected_verdict"],
               t.get("note", "")) for t in tests])
         test_ids = [t["id"] for t in tests]
         conn.execute(f"DELETE FROM test_claims WHERE id NOT IN ({', '.join('?' * len(test_ids))})", test_ids)
@@ -174,7 +180,7 @@ def _import_legacy_review_log() -> None:
         entries = json.load(f)
     for e in entries:
         add_review(e["claim"], e["model_verdict"], e["reviewer_verdict"], e.get("note", ""),
-                   collection_id=SEED_COLLECTION["id"], timestamp=e.get("timestamp"))
+                   collection_id=SEED_COLLECTION_ID, timestamp=e.get("timestamp"))
     legacy.rename(legacy.with_suffix(".json.imported"))
 
 
@@ -218,7 +224,7 @@ def create_collection(name: str, description: str = "") -> dict:
 def delete_collection(collection_id: str) -> None:
     """Delete a user topic and all of its passages."""
     if get_collection(collection_id)["origin"] == "seed":
-        raise ReadOnly("The built-in Chandrayaan-3 topic can't be deleted.")
+        raise ReadOnly("Built-in topics can't be deleted. Remove their file from data/topics/ instead.")
     with connect() as conn:
         conn.execute("DELETE FROM passages WHERE collection_id = ?", (collection_id,))
         conn.execute("DELETE FROM collections WHERE id = ?", (collection_id,))

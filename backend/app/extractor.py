@@ -44,6 +44,8 @@ class ClaimExtractor:
         words = [t for t in sent if not t.is_punct and not t.is_space]
         if text.endswith("?"):
             return "question"
+        if text.endswith(":"):
+            return "lead-in"
         for pattern in HEDGE_PATTERNS:
             if re.search(pattern, lower):
                 return "opinion or hedge"
@@ -75,7 +77,7 @@ class ClaimExtractor:
         """Return {'claim': best sentence or '', 'candidates': [...all sentences...]}."""
         doc = self.nlp(clean_text(post_text))
         candidates = []
-        for sent in doc.sents:
+        for position, sent in enumerate(doc.sents):
             text = sent.text.strip()
             if not text:
                 continue
@@ -87,13 +89,26 @@ class ClaimExtractor:
                 text = rest.strip()
             reason = self._discard_reason(sent)
             if reason:
-                candidates.append({"sentence": text, "score": 0.0, "kept": False,
+                candidates.append({"sentence": text, "score": 0.0, "kept": False, "position": position,
                                    "reasons": [f"discarded: {reason}"]})
                 continue
             score, reasons = self._score(sent)
-            candidates.append({"sentence": text, "score": score, "kept": True, "reasons": reasons})
+            candidates.append({"sentence": text, "score": score, "kept": True, "position": position,
+                               "reasons": reasons})
 
         # Best-scoring kept sentences first; discarded ones go to the end.
         candidates.sort(key=lambda c: (c["kept"], c["score"]), reverse=True)
         best = next((c["sentence"] for c in candidates if c["kept"]), "")
         return {"claim": best, "candidates": candidates}
+
+    def extract_claims(self, post_text: str) -> dict:
+        """
+        Multi-claim mode: every kept sentence that scores at least MIN_MULTI_CLAIM_SCORE
+        (so it names at least one entity, date or number) becomes a separate claim.
+        At most MAX_CLAIMS_PER_POST are returned, in the order they appear in the post.
+        """
+        result = self.extract(post_text)
+        factual = [c for c in result["candidates"] if c["kept"] and c["score"] >= config.MIN_MULTI_CLAIM_SCORE]
+        factual = sorted(factual, key=lambda c: c["score"], reverse=True)[: config.MAX_CLAIMS_PER_POST]
+        factual.sort(key=lambda c: c["position"])
+        return {"claims": [c["sentence"] for c in factual], "candidates": result["candidates"]}

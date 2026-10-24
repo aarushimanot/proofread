@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Proofread: one command to set up and run the whole project.
 #
-#   ./start.sh          set up anything missing, build the UI, run everything on http://localhost:8000
-#   ./start.sh dev      developer mode: backend with auto-reload + Vite UI with hot reload (:5173)
-#   ./start.sh eval     run the evaluation (add --sweep for the sensitivity table)
-#   ./start.sh setup    only install / build, don't start
+#   ./start.sh          set up anything missing and open the Streamlit app on http://localhost:8501
+#   ./start.sh eval     run the evaluation (writes backend/results/)
+#   ./start.sh setup    only install, don't start
+#   ./start.sh web      the older React + FastAPI website on http://localhost:8000 (fewer features)
+#   ./start.sh dev      developer mode for that React website (:5173 + :8000)
 #
 # Every setup step is skipped if it has already been done, so re-running is fast.
 set -euo pipefail
@@ -14,6 +15,7 @@ BACKEND="$ROOT/backend"
 FRONTEND="$ROOT/frontend"
 VENV="$BACKEND/.venv"
 PORT="${PROOFREAD_PORT:-8000}"
+ST_PORT="${PROOFREAD_STREAMLIT_PORT:-8501}"
 MODE="${1:-run}"
 
 say()  { printf "\033[1;34m▸ %s\033[0m\n" "$*"; }
@@ -79,7 +81,7 @@ port_free() { ! lsof -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
 open_when_ready() {
   # Wait (in the background) until the server answers, then open the browser.
   ( for _ in $(seq 1 600); do
-      if curl -s "http://localhost:$PORT/health" >/dev/null 2>&1; then
+      if curl -s "http://localhost:$PORT/health" >/dev/null 2>&1 || curl -s "http://localhost:$PORT/_stcore/health" >/dev/null 2>&1; then
         printf "\n\033[1;32m✓ Proofread is ready: %s\033[0m  (Ctrl+C to stop)\n\n" "$1"
         command -v open >/dev/null 2>&1 && open "$1"
         exit 0
@@ -91,11 +93,20 @@ open_when_ready() {
 # ---------------------------------------------------------------- modes
 case "$MODE" in
   setup)
-    setup_backend; setup_frontend; build_frontend
+    setup_backend
     say "Setup complete. Run ./start.sh to start Proofread."
     ;;
 
   run)
+    setup_backend
+    port_free "$ST_PORT" || fail "Port $ST_PORT is already in use. Stop the other app, or run: PROOFREAD_STREAMLIT_PORT=8502 ./start.sh"
+    say "Starting Proofread on http://localhost:$ST_PORT (the first start downloads ~640 MB of AI models)"
+    PORT="$ST_PORT" open_when_ready "http://localhost:$ST_PORT"
+    cd "$ROOT"
+    exec "$VENV/bin/streamlit" run streamlit_app.py --server.port "$ST_PORT" --server.headless true --server.address localhost
+    ;;
+
+  web)
     setup_backend; setup_frontend; build_frontend
     port_free "$PORT" || fail "Port $PORT is already in use. Stop the other server, or run: PROOFREAD_PORT=8001 ./start.sh"
     say "Starting Proofread on http://localhost:$PORT (loading AI models, first start downloads ~640 MB)"
@@ -126,6 +137,6 @@ case "$MODE" in
     ;;
 
   *)
-    fail "Unknown mode '$MODE'. Use: ./start.sh [run|dev|eval|setup]"
+    fail "Unknown mode '$MODE'. Use: ./start.sh [run|eval|setup|web|dev]"
     ;;
 esac

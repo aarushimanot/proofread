@@ -1,0 +1,13 @@
+# Requirements for deploying the Streamlit app (Streamlit Community Cloud / Linux, CPU only).
+# For local development on a Mac use backend/requirements.txt instead (./start.sh does this for you).
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1+cpu
+streamlit==1.40.1
+pyarrow==17.0.0
+spacy==3.8.3
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+sentence-transformers==3.3.1
+transformers==4.46.3
+sentencepiece==0.2.0
+protobuf==5.29.1
+numpy==1.26.4

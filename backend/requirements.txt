@@ -11,3 +11,7 @@ torch==2.5.1
 sentencepiece==0.2.0   # DeBERTa-v3 tokenizer
 protobuf==5.29.1       # needed for DeBERTa-v3 tokenizer conversion
 numpy==1.26.4
+
+# Streamlit app
+streamlit==1.40.1
+pyarrow==17.0.0        # newer pyarrow needs NumPy 2; keep NumPy 1.26 for the models above
