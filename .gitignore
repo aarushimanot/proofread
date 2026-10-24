@@ -1,0 +1,9 @@
+backend/.venv/
+backend/data/review_log.json
+__pycache__/
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+.DS_Store
+backend/data/proofread.db
+backend/data/*.imported

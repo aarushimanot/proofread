@@ -1,0 +1,13 @@
+# Web API
+fastapi==0.115.6
+uvicorn==0.32.1
+pydantic==2.10.3
+
+# NLP
+spacy==3.8.3
+sentence-transformers==3.3.1
+transformers==4.46.3
+torch==2.5.1
+sentencepiece==0.2.0   # DeBERTa-v3 tokenizer
+protobuf==5.29.1       # needed for DeBERTa-v3 tokenizer conversion
+numpy==1.26.4

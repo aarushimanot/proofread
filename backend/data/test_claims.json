@@ -1,0 +1,100 @@
+[
+  {
+    "id": "T01",
+    "post_text": "Throwback to the day history was made 🚀 Chandrayaan-3 was launched on 14 July 2023 from Sriharikota. Who else was glued to the livestream? #ISRO #Chandrayaan3",
+    "claim": "Chandrayaan-3 was launched on 14 July 2023 from Sriharikota.",
+    "expected_verdict": "SUPPORTED",
+    "note": "Straightforward launch date and site; directly stated in CY3-02."
+  },
+  {
+    "id": "T02",
+    "post_text": "Still getting goosebumps. The Vikram lander touched down near the Moon's south pole on 23 August 2023. I think this is the proudest moment for Indian science!",
+    "claim": "The Vikram lander touched down near the Moon's south pole on 23 August 2023.",
+    "expected_verdict": "SUPPORTED",
+    "note": "Landing date and region; CY3-05. 'Touched down' paraphrases 'soft-landed'."
+  },
+  {
+    "id": "T03",
+    "post_text": "Science thread 🧵 The Pragyan rover confirmed the presence of sulphur on the lunar surface. Maybe there's even more hidden down there? Follow for more space facts!",
+    "claim": "The Pragyan rover confirmed the presence of sulphur on the lunar surface.",
+    "expected_verdict": "SUPPORTED",
+    "note": "Sulphur finding; CY3-10."
+  },
+  {
+    "id": "T04",
+    "post_text": "Never forget: India became the first country to land near the lunar south pole. In my opinion nobody talks about this enough. 🇮🇳",
+    "claim": "India became the first country to land near the lunar south pole.",
+    "expected_verdict": "SUPPORTED",
+    "note": "First near the south pole; CY3-06."
+  },
+  {
+    "id": "T05",
+    "post_text": "Happy anniversary to our Moon mission! 🎉 Chandrayaan-3 landed on the Moon on 15 August 2023, right on Independence Day. What a coincidence, right?",
+    "claim": "Chandrayaan-3 landed on the Moon on 15 August 2023.",
+    "expected_verdict": "CONTRADICTED",
+    "note": "Wrong date: the landing was on 23 August 2023 (CY3-05)."
+  },
+  {
+    "id": "T06",
+    "post_text": "Quiz time! Can you name the rover? 🤖 The rover deployed by Chandrayaan-3 was named Pragati. Tag a friend who got it right!",
+    "claim": "The rover deployed by Chandrayaan-3 was named Pragati.",
+    "expected_verdict": "CONTRADICTED",
+    "note": "Wrong rover name: the rover is Pragyan (CY3-01, CY3-08)."
+  },
+  {
+    "id": "T07",
+    "post_text": "Fun fact for your Monday: Chandrayaan-3 landed near the Moon's north pole. Imagine how cold it must be there! #SpaceFacts",
+    "claim": "Chandrayaan-3 landed near the Moon's north pole.",
+    "expected_verdict": "CONTRADICTED",
+    "note": "Wrong location: the landing was near the lunar south pole (CY3-05, CY3-06)."
+  },
+  {
+    "id": "T08",
+    "post_text": "Engineering marvel 🔧 The Pragyan rover has four wheels and carried two instruments. I feel like it looks like a tiny car honestly.",
+    "claim": "The Pragyan rover has four wheels and carried two instruments.",
+    "expected_verdict": "CONTRADICTED",
+    "note": "Wrong number: Pragyan is six-wheeled (CY3-08). Half of the claim (two instruments) is correct, which makes this harder."
+  },
+  {
+    "id": "T09",
+    "post_text": "People keep complaining about space budgets 🙄 The Chandrayaan-3 mission cost less than the budget of the movie Interstellar. Think about that.",
+    "claim": "The Chandrayaan-3 mission cost less than the budget of the movie Interstellar.",
+    "expected_verdict": "INSUFFICIENT_EVIDENCE",
+    "note": "Plausible and widely shared, but no passage mentions the mission cost or the movie."
+  },
+  {
+    "id": "T10",
+    "post_text": "BREAKING?? The Pragyan rover found water ice at the Chandrayaan-3 landing site. Is this real? Someone confirm pls",
+    "claim": "The Pragyan rover found water ice at the Chandrayaan-3 landing site.",
+    "expected_verdict": "INSUFFICIENT_EVIDENCE",
+    "note": "The corpus lists the elements detected but says nothing about water ice, so the correct answer is insufficient evidence, not contradicted."
+  },
+  {
+    "id": "T11",
+    "post_text": "Shoutout to the leadership behind the mission 👏 The Chandrayaan-3 mission was led by project director P. Veeramuthuvel. Real heroes don't wear capes.",
+    "claim": "The Chandrayaan-3 mission was led by project director P. Veeramuthuvel.",
+    "expected_verdict": "INSUFFICIENT_EVIDENCE",
+    "note": "The project director is not mentioned anywhere in the corpus."
+  },
+  {
+    "id": "T12",
+    "post_text": "The internet broke that night 📺 Over 8 million people watched the Chandrayaan-3 landing live on YouTube. Were you one of them?",
+    "claim": "Over 8 million people watched the Chandrayaan-3 landing live on YouTube.",
+    "expected_verdict": "INSUFFICIENT_EVIDENCE",
+    "note": "Viewership figures are not covered by any passage, even though landing passages are topically similar."
+  },
+  {
+    "id": "T13",
+    "post_text": "Little rover, big journey 🛞 ISRO's Moon rover drove more than a hundred metres before going to sleep. Proud of the team!",
+    "claim": "ISRO's Moon rover drove more than a hundred metres before going to sleep.",
+    "expected_verdict": "SUPPORTED",
+    "note": "Tricky paraphrase: 'more than a hundred metres' and 'going to sleep' paraphrase 'over 100 metres' and 'put into sleep mode' in CY3-12, and the rover is not named."
+  },
+  {
+    "id": "T14",
+    "post_text": "Chandrayaan-3 recap for the group chat: India became the third country to soft-land on the Moon. Not bad at all! 🌕",
+    "claim": "India became the third country to soft-land on the Moon.",
+    "expected_verdict": "CONTRADICTED",
+    "note": "Tricky subtle number change: India was the fourth country (CY3-06). NLI models often miss ordinal changes."
+  }
+]

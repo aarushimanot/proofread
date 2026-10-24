@@ -1,0 +1,10 @@
+**/.venv
+**/node_modules
+**/__pycache__
+frontend/dist
+backend/data/proofread.db
+backend/data/*.imported
+backend/results
+.git
+.DS_Store
+*.tsbuildinfo
