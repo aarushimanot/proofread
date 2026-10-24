@@ -43,6 +43,9 @@ st.markdown("""
              letter-spacing: -0.03em; color: inherit;}
   .pr-tagline {opacity: .65; font-size: 0.95rem; margin: 4px 0 14px;}
   mark {color: #111827;}   /* highlighted words sit on a yellow background in both themes */
+  /* Sidebar: section headings styled like Streamlit's own navigation group headings. */
+  .pr-side-heading {font-size: .875rem; font-weight: 600; margin: 4px 0 2px;}
+  [data-testid="stSidebarHeader"] img {height: 2.1rem !important; max-width: 100%;}
 </style>""", unsafe_allow_html=True)
 
 APP_PAGES = [
@@ -65,12 +68,19 @@ else:
                 '<div class="pr-tagline">Read it for proof before you share it.</div>', unsafe_allow_html=True)
     st.warning("**Decision-support tool for human reviewers.** Verdicts are based only on the curated reference set "
                "and may be wrong. Absence of evidence ≠ false.")
-    pages = st.navigation(APP_PAGES)   # register the pages first, so links straight to a page work
+    # Sidebar: logo on top, then the pages grouped under section headings.
+    st.logo(str(ROOT / "assets" / "wordmark.svg"), size="large", icon_image=str(ROOT / "assets" / "logo.svg"))
+    pages = st.navigation({                     # register the pages first, so links straight to a page work
+        "Review": APP_PAGES[0:2],               # Check a claim, Lie-brary
+        "Insights": APP_PAGES[2:4],             # Dashboard, Evaluation
+        "Help": APP_PAGES[4:],                  # About & Limitations
+    })
     get_pipeline()          # load the models once, with a spinner, before any page needs them
     backfill_test_claims()  # topics created before auto test claims existed get theirs now
     pages.run()
     st.session_state.setdefault("reviewer", "Anonymous")
-    st.sidebar.text_input("Reviewing as", key="reviewer", max_chars=60,
-                          help="Saved with each review you submit.")
+    st.sidebar.markdown('<div class="pr-side-heading">Reviewer</div>', unsafe_allow_html=True)
+    st.sidebar.text_input("Your name", key="reviewer", max_chars=60,
+                          help="Saved with each review you submit, so the club knows who approved each verdict.")
     st.sidebar.button("Back to home page", on_click=lambda: st.session_state.update(entered=False))
     st.sidebar.caption("Student media club prototype · open-source models · no paid APIs")
