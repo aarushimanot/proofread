@@ -71,6 +71,7 @@ class ReviewRequest(BaseModel):
     reviewer_verdict: Literal[VERDICTS]
     note: str = Field("", max_length=2000)
     collection_id: str | None = None
+    reviewer: str = Field("", max_length=60)
 
 
 class CollectionRequest(BaseModel):
@@ -207,7 +208,8 @@ def verify(req: VerifyRequest):
 
 @app.post("/review")
 def review(req: ReviewRequest):
-    entry = db.add_review(req.claim, req.model_verdict, req.reviewer_verdict, req.note, req.collection_id)
+    entry = db.add_review(req.claim, req.model_verdict, req.reviewer_verdict, req.note, req.collection_id,
+                          reviewer=req.reviewer)
     return {"saved": True, "entry": entry, "total": db.stats()["reviews"]}
 
 

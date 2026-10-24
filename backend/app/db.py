@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS test_claims (
 );
 CREATE TABLE IF NOT EXISTS reviews (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    reviewer          TEXT NOT NULL DEFAULT 'Anonymous',   -- name typed on the landing page
     collection_id     TEXT,                       -- NULL = checked against all topics
     claim             TEXT NOT NULL,
     model_verdict     TEXT NOT NULL,
@@ -89,7 +90,7 @@ CREATE TABLE IF NOT EXISTS checks (
 MIGRATIONS = {
     "passages": {"collection_id": "TEXT NOT NULL DEFAULT 'chandrayaan-3'", "origin": "TEXT NOT NULL DEFAULT 'seed'"},
     "test_claims": {"collection_id": "TEXT NOT NULL DEFAULT 'chandrayaan-3'", "origin": "TEXT NOT NULL DEFAULT 'seed'"},
-    "reviews": {"collection_id": "TEXT"},
+    "reviews": {"collection_id": "TEXT", "reviewer": "TEXT NOT NULL DEFAULT 'Anonymous'"},
     "checks": {"collection_id": "TEXT"},
 }
 
@@ -324,16 +325,17 @@ def delete_test_claim(claim_id: str) -> None:
 
 # ------------------------------------------------------------------ reviews
 def add_review(claim: str, model_verdict: str, reviewer_verdict: str, note: str,
-               collection_id: str | None = None, timestamp: str | None = None) -> dict:
+               collection_id: str | None = None, timestamp: str | None = None, reviewer: str = "") -> dict:
     entry = {
-        "collection_id": collection_id, "claim": claim, "model_verdict": model_verdict,
+        "reviewer": reviewer.strip()[:60] or "Anonymous", "collection_id": collection_id, "claim": claim, "model_verdict": model_verdict,
         "reviewer_verdict": reviewer_verdict, "note": note,
         "agreed": model_verdict == reviewer_verdict, "timestamp": timestamp or now(),
     }
     with connect() as conn:
         cur = conn.execute(
-            "INSERT INTO reviews (collection_id, claim, model_verdict, reviewer_verdict, note, agreed, timestamp) "
-            "VALUES (:collection_id, :claim, :model_verdict, :reviewer_verdict, :note, :agreed, :timestamp)", entry)
+            "INSERT INTO reviews (reviewer, collection_id, claim, model_verdict, reviewer_verdict, note, agreed, timestamp) "
+            "VALUES (:reviewer, :collection_id, :claim, :model_verdict, :reviewer_verdict, :note, :agreed, :timestamp)",
+            entry)
         entry["id"] = cur.lastrowid
     return entry
 

@@ -69,5 +69,8 @@ else:
     get_pipeline()          # load the models once, with a spinner, before any page needs them
     backfill_test_claims()  # topics created before auto test claims existed get theirs now
     pages.run()
+    st.session_state.setdefault("reviewer", "Anonymous")
+    st.sidebar.text_input("Reviewing as", key="reviewer", max_chars=60,
+                          help="Saved with each review you submit.")
     st.sidebar.button("Back to home page", on_click=lambda: st.session_state.update(entered=False))
     st.sidebar.caption("Student media club prototype · open-source models · no paid APIs")

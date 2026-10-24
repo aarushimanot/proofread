@@ -37,13 +37,14 @@ Proofread follows three rules it never breaks:
 - a claim is never called false just because nothing matched (that is **INSUFFICIENT EVIDENCE**);
 - a human always makes the final call.
 
-## 2. What the app does (5 pages)
+## 2. What the app does
 
 | Page | What you can do |
 |---|---|
+| **Landing page** | The name, tagline and a short description. Type **your name** (optional) and click **Start checking**. The name is saved with every review you make, so the club knows who approved each verdict. |
 | **Check a claim** | Pick a topic, paste a post (or load an example). **One claim** mode: extract the claim, edit it, check it. **Every claim** mode: find every factual sentence and check each one. Each result shows a verdict, evidence cards (link, highlights, similarity, NLI scores, number/date warnings, the 🔑 key sentence, a "Why" explanation) and a human-review form. |
 | **Lie-brary** | Browse the topics and passages. Create your own topic and add sources by **pasting a link** (Wikipedia or any web page, split into passages you tick before saving), **pasting text**, or **typing one passage**. Edit or delete your passages. Each topic gets **auto-generated test claims** (section 7) that you can review, edit or regenerate. |
-| **Dashboard** | Live charts from the database: verdicts given, claims per day, model vs reviewer decisions, how often reviewers override each verdict, the most-used topics, sources and passages. |
+| **Dashboard** | Live charts from the database: verdicts given, claims per day, model vs reviewer decisions, how often reviewers override each verdict, reviews per reviewer and recent reviews, the most-used topics, sources and passages. |
 | **Evaluation** | Pick a test set (the 14 built-in claims, or any topic's auto-generated claims) and see results: accuracy, baselines vs Proofread, ablations, confusion matrix, confidence calibration, threshold sensitivity, multi-claim results, every claim, and what the results taught us. A button re-runs the evaluation. |
 | **About & Limitations** | How it works, limitations, responsible use. |
 
@@ -307,7 +308,7 @@ The YAML block at the top of this README tells Hugging Face to use Docker on por
 - Entity-level checks for names (would fix T06), and time-aware number checks (only compare values about the same year).
 - Calibrated confidence, and thresholds learned from reviewer overrides.
 - Hybrid retrieval (keyword + embeddings) so exact names and dates count more.
-- Persistent hosted database, user accounts for reviewers, and multilingual support (Hindi first).
+- Persistent hosted database and real user accounts. The prototype records a reviewer **name** with each review for accountability, without passwords. Multilingual support (Hindi first).
 
 ## 12. Viva cheat sheet
 

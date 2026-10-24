@@ -178,7 +178,9 @@ def review_form(result: dict, key: str) -> None:
     """Step 3: the human agrees or overrides; saved to the database."""
     saved_key = f"saved-{key}"
     with st.form(f"review-{key}", border=True):
+        reviewer = st.session_state.get("reviewer", "Anonymous")
         st.markdown("**Human review**: the verdict is only a suggestion. Read the evidence, then record your decision.")
+        st.caption(f"Reviewing as **{reviewer}** (change it in the sidebar).")
         model = result["verdict"]
         options = [model] + [v for v in VERDICTS if v != model]
         choice = st.selectbox(
@@ -187,7 +189,7 @@ def review_form(result: dict, key: str) -> None:
             else f"Override → {VERDICT_STYLE[v]['label']}")
         note = st.text_input("Note (optional)", placeholder="e.g. Passage CY3-05 gives a different date")
         if st.form_submit_button("Submit review", type="primary", disabled=st.session_state.get(saved_key, False)):
-            db.add_review(result["claim"], model, choice, note, result["collection_id"])
+            db.add_review(result["claim"], model, choice, note, result["collection_id"], reviewer=reviewer)
             st.session_state[saved_key] = True
             st.rerun()
     if st.session_state.get(saved_key):

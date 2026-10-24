@@ -15,6 +15,7 @@ FEATURES = [
 
 
 def enter_app():
+    st.session_state["reviewer"] = st.session_state.get("reviewer_input", "").strip() or "Anonymous"
     st.session_state["entered"] = True
 
 
@@ -44,6 +45,11 @@ def page():
                 'social media against trusted sources, see exactly why, and decide for yourself.</p>',
                 unsafe_allow_html=True)
 
+    name_col, _ = st.columns([2, 3])
+    name_col.text_input("Your name (optional)", key="reviewer_input", max_chars=60,
+                        placeholder="e.g. Aarav, News desk",
+                        help="Saved with each review you make, so the club knows who approved each verdict. "
+                             "Leave blank to review as Anonymous.")
     st.button("Start checking", type="primary", on_click=enter_app)
 
     st.write("")

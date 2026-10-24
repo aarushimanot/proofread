@@ -84,6 +84,24 @@ def page():
                             use_container_width=True)
             st.caption("Cells on the diagonal are agreements; anything off it is a human correcting the model.")
 
+        # Who reviewed what (the reviewer name typed on the landing page).
+        left, right = st.columns([2, 3])
+        per = (reviews.groupby("reviewer").agg(reviews=("id", "size"), overridden=("agreed", lambda a: int((~a).sum())))
+               .reset_index().sort_values("reviews", ascending=False))
+        with left:
+            st.altair_chart(hbar(per, "reviews", "reviewer", title="Reviews per reviewer", fmt="d",
+                                 tooltip=[alt.Tooltip("reviewer:N"), alt.Tooltip("reviews:Q"),
+                                          alt.Tooltip("overridden:Q", title="overrode the model")]),
+                            use_container_width=True)
+        with right:
+            recent = reviews.sort_values("id", ascending=False).head(15)
+            st.markdown("**Recent reviews**")
+            st.dataframe(recent[["timestamp", "reviewer", "claim", "model", "reviewer_verdict", "note"]]
+                         .assign(reviewer_verdict=recent["reviewer_verdict"].map(LABEL))
+                         .rename(columns={"timestamp": "Time", "reviewer": "Reviewer", "claim": "Claim",
+                                          "model": "Model said", "reviewer_verdict": "Reviewer decided", "note": "Note"}),
+                         hide_index=True, use_container_width=True)
+
     # ---------------------------------------------------------------- topics and sources
     st.subheader("Topics and sources")
     left, right = st.columns(2)
