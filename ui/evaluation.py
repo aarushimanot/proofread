@@ -76,7 +76,7 @@ def page():
 
     # ---------------------------------------------------------------- systems
     st.subheader("Proofread vs simpler methods")
-    sys_df = pd.DataFrame([{"system": n, "group": GROUP_NAME[r["group"]], **r} for n, r in s["systems"].items()])
+    sys_df = pd.DataFrame([{**r, "system": n, "group": GROUP_NAME[r["group"]]} for n, r in s["systems"].items()])
     color_map = {GROUP_NAME[g]: c for g, c in GROUP_COLORS.items()}
     left, right = st.columns(2)
     with left:

@@ -45,7 +45,7 @@ def page():
                         "share": counts.values / counts.sum()})
     with left:
         st.altair_chart(hbar(vdf, "claims", "verdict", title="Verdicts given", fmt="d", color="verdict",
-                             color_map={LABEL[v]: VERDICT_STYLE[v]["color"] for v in VERDICTS}, legend_title=None,
+                             color_map={LABEL[v]: VERDICT_STYLE[v]["color"] for v in VERDICTS}, legend=False,
                              tooltip=[alt.Tooltip("verdict:N"), alt.Tooltip("claims:Q"),
                                       alt.Tooltip("share:Q", format=".0%")]),
                         use_container_width=True)
@@ -65,13 +65,13 @@ def page():
         st.info("No human reviews yet. Submit one in step 3 of “Check a claim”.")
     else:
         reviews["model"] = reviews["model_verdict"].map(LABEL)
-        reviews["reviewer"] = reviews["reviewer_verdict"].map(LABEL)
-        grid = (reviews.groupby(["model", "reviewer"]).size().reset_index(name="n"))
-        full = pd.MultiIndex.from_product([list(LABEL.values())] * 2, names=["model", "reviewer"])
-        grid = grid.set_index(["model", "reviewer"]).reindex(full, fill_value=0).reset_index()
+        reviews["decided"] = reviews["reviewer_verdict"].map(LABEL)   # "reviewer" is the person's name
+        grid = (reviews.groupby(["model", "decided"]).size().reset_index(name="n"))
+        full = pd.MultiIndex.from_product([list(LABEL.values())] * 2, names=["model", "decided"])
+        grid = grid.set_index(["model", "decided"]).reindex(full, fill_value=0).reset_index()
         left, right = st.columns([3, 2])
         with left:
-            st.altair_chart(heatmap(grid, "reviewer", "model", "n", title="Model verdict vs reviewer decision",
+            st.altair_chart(heatmap(grid, "decided", "model", "n", title="Model verdict vs reviewer decision",
                                     x_title="Reviewer decided", y_title="Model said", order=list(LABEL.values())),
                             use_container_width=True)
         override = (reviews.assign(over=~reviews["agreed"]).groupby("model")["over"].agg(["mean", "size"])
@@ -96,10 +96,9 @@ def page():
         with right:
             recent = reviews.sort_values("id", ascending=False).head(15)
             st.markdown("**Recent reviews**")
-            st.dataframe(recent[["timestamp", "reviewer", "claim", "model", "reviewer_verdict", "note"]]
-                         .assign(reviewer_verdict=recent["reviewer_verdict"].map(LABEL))
+            st.dataframe(recent[["timestamp", "reviewer", "claim", "model", "decided", "note"]]
                          .rename(columns={"timestamp": "Time", "reviewer": "Reviewer", "claim": "Claim",
-                                          "model": "Model said", "reviewer_verdict": "Reviewer decided", "note": "Note"}),
+                                          "model": "Model said", "decided": "Reviewer decided", "note": "Note"}),
                          hide_index=True, use_container_width=True)
 
     # ---------------------------------------------------------------- topics and sources
