@@ -1,5 +1,7 @@
 // App shell: header, persistent disclaimer banner and tabs.
-import { useState } from "react";
+// The list of topics lives here so every tab sees the same, up-to-date list.
+import { useCallback, useEffect, useState } from "react";
+import { api, type Collection } from "./api";
 import About from "./components/About";
 import CheckClaim from "./components/CheckClaim";
 import History from "./components/History";
@@ -15,6 +17,16 @@ type TabId = (typeof TABS)[number]["id"];
 
 export default function App() {
   const [tab, setTab] = useState<TabId>("check");
+  const [collections, setCollections] = useState<Collection[]>([]);
+
+  const reloadCollections = useCallback(async () => {
+    try {
+      setCollections(await api.collections());
+    } catch {
+      setCollections([]);
+    }
+  }, []);
+  useEffect(() => { reloadCollections(); }, [reloadCollections]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -54,8 +66,10 @@ export default function App() {
 
       <main className="mx-auto max-w-5xl px-4 py-6">
         {/* Keep CheckClaim mounted so switching tabs doesn't lose the current check. */}
-        <div hidden={tab !== "check"}><CheckClaim /></div>
-        {tab === "library" && <Library />}
+        <div hidden={tab !== "check"}>
+          <CheckClaim collections={collections} onManageSources={() => setTab("library")} />
+        </div>
+        {tab === "library" && <Library collections={collections} onChange={reloadCollections} />}
         {tab === "history" && <History />}
         {tab === "about" && <About />}
       </main>

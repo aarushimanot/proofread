@@ -52,6 +52,8 @@ export interface Evidence {
 
 export interface VerifyResponse {
   claim: string;
+  collection_id: string | null;
+  passages_searched: number;
   verdict: Verdict;
   confidence: number | null;
   confidence_label: "Low" | "Medium" | "High";
@@ -63,6 +65,26 @@ export interface VerifyResponse {
 
 export interface Reference {
   id: string;
+  collection_id: string;
+  title: string;
+  source: string;
+  url: string;
+  date: string;
+  text: string;
+  origin: "seed" | "user";
+}
+
+export interface Collection {
+  id: string;
+  name: string;
+  description: string;
+  origin: "seed" | "user";
+  created_at: string;
+  passage_count: number;
+}
+
+// A passage before it is saved (from an import preview or the manual form).
+export interface PassageDraft {
   title: string;
   source: string;
   url: string;
@@ -70,8 +92,18 @@ export interface Reference {
   text: string;
 }
 
+export interface ImportPreview {
+  title: string;
+  source: string;
+  url: string;
+  date: string;
+  truncated: boolean;
+  passages: PassageDraft[];
+}
+
 export interface Example {
   id: string;
+  collection_id: string;
   post_text: string;
   claim: string;
   expected_verdict: Verdict;
@@ -89,6 +121,8 @@ export interface ReviewEntry {
 
 export interface CheckRecord {
   id: number;
+  collection_id: string | null;
+  collection_name: string | null;
   claim: string;
   verdict: Verdict;
   confidence: number | null;
@@ -98,6 +132,7 @@ export interface CheckRecord {
 }
 
 export interface Stats {
+  collections: number;
   passages: number;
   test_claims: number;
   reviews: number;
@@ -105,11 +140,11 @@ export interface Stats {
   checks: number;
 }
 
-async function request<T>(path: string, body?: unknown): Promise<T> {
+async function request<T>(path: string, body?: unknown, method?: string): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, {
-      method: body === undefined ? "GET" : "POST",
+      method: method ?? (body === undefined ? "GET" : "POST"),
       headers: body === undefined ? undefined : { "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
@@ -127,12 +162,30 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+const q = (collectionId?: string | null) => (collectionId ? `?collection_id=${encodeURIComponent(collectionId)}` : "");
+
 export const api = {
   extract: (post_text: string) => request<ExtractResponse>("/extract", { post_text }),
-  verify: (claim: string) => request<VerifyResponse>("/verify", { claim }),
-  references: () => request<Reference[]>("/references"),
-  examples: () => request<Example[]>("/examples"),
-  review: (entry: { claim: string; model_verdict: Verdict; reviewer_verdict: Verdict; note: string }) =>
+  // collection_id null = check against all topics
+  verify: (claim: string, collection_id: string | null) =>
+    request<VerifyResponse>("/verify", { claim, collection_id }),
+  references: (collectionId?: string | null) => request<Reference[]>(`/references${q(collectionId)}`),
+  examples: (collectionId?: string | null) => request<Example[]>(`/examples${q(collectionId)}`),
+
+  collections: () => request<Collection[]>("/collections"),
+  createCollection: (name: string, description: string) =>
+    request<Collection>("/collections", { name, description }),
+  deleteCollection: (id: string) => request<{ deleted: string }>(`/collections/${encodeURIComponent(id)}`, undefined, "DELETE"),
+  addPassages: (collection_id: string, passages: PassageDraft[]) =>
+    request<Reference[]>("/references", { collection_id, passages }),
+  updatePassage: (id: string, fields: Partial<PassageDraft>) =>
+    request<Reference>(`/references/${encodeURIComponent(id)}`, fields, "PUT"),
+  deletePassage: (id: string) => request<{ deleted: string }>(`/references/${encodeURIComponent(id)}`, undefined, "DELETE"),
+  importUrl: (url: string) => request<ImportPreview>("/import/url", { url }),
+  importText: (body: { text: string; title: string; source: string; url: string; date: string }) =>
+    request<ImportPreview>("/import/text", body),
+
+  review: (entry: { claim: string; model_verdict: Verdict; reviewer_verdict: Verdict; note: string; collection_id: string | null }) =>
     request<{ saved: boolean; entry: ReviewEntry; total: number }>("/review", entry),
   reviewLog: () => request<ReviewEntry[]>("/review-log"),
   history: () => request<CheckRecord[]>("/history"),

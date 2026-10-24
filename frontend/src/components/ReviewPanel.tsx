@@ -6,9 +6,10 @@ import { VERDICT_STYLES, VerdictBadge, ErrorBox, Spinner, buttonPrimary, inputCl
 interface Props {
   claim: string;
   modelVerdict: Verdict;
+  collectionId: string | null;
 }
 
-export default function ReviewPanel({ claim, modelVerdict }: Props) {
+export default function ReviewPanel({ claim, modelVerdict, collectionId }: Props) {
   const [choice, setChoice] = useState<Verdict>(modelVerdict);
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -31,7 +32,7 @@ export default function ReviewPanel({ claim, modelVerdict }: Props) {
     setSaving(true);
     setError("");
     try {
-      await api.review({ claim, model_verdict: modelVerdict, reviewer_verdict: choice, note });
+      await api.review({ claim, model_verdict: modelVerdict, reviewer_verdict: choice, note, collection_id: collectionId });
       setSaved(true);
       setLog(await api.reviewLog());
     } catch (e) {

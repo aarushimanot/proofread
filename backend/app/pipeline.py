@@ -29,11 +29,11 @@ from .textutils import (claim_predicates, compare_quantities, content_keys,  # n
 class ProofreadPipeline:
     def __init__(self):
         self.device = config.pick_device()
-        db.init_db()                      # create tables + load the curated JSON into SQLite
-        self.references = db.get_passages()
+        db.init_db()                      # create tables + load the built-in JSON into SQLite
         self.nlp = spacy.load(config.SPACY_MODEL)
         self.extractor = ClaimExtractor(self.nlp)
-        self.retriever = Retriever(self.references, self.device)
+        self.retriever = Retriever(self.device)
+        self.retriever.embeddings_for(db.get_passages())   # pre-compute embeddings at startup
         self.stance = StanceClassifier(self.device)
 
     # ------------------------------------------------------------- extraction
@@ -41,13 +41,19 @@ class ProofreadPipeline:
         return self.extractor.extract(post_text)
 
     # ------------------------------------------------------------- verification
-    def verify(self, claim: str, top_k: int | None = None) -> dict:
+    def verify(self, claim: str, collection_id: str | None = None, top_k: int | None = None) -> dict:
+        """
+        Check a claim against the passages of one topic (collection_id), or of all
+        topics when collection_id is None. Passages are read fresh from the database,
+        so anything added in the app is used immediately.
+        """
         claim = claim.strip()
+        passages = db.get_passages(collection_id)
         claim_doc = self.nlp(claim)
         claim_keys = content_keys(claim_doc)
         claim_quantities = extract_quantities(claim_doc)
 
-        hits = self.retriever.search(claim, top_k or config.TOP_K)
+        hits = self.retriever.search(claim, passages, top_k or config.TOP_K)
 
         # Run NLI only on passages that cleared the relevance threshold.
         relevant_hits = [h for h in hits if h["relevant"]]
@@ -98,10 +104,12 @@ class ProofreadPipeline:
         result = aggregate(evidence)
         return {
             "claim": claim,
+            "collection_id": collection_id,
+            "passages_searched": len(passages),
             "verdict": result["verdict"],
             "confidence": result["confidence"],
             "confidence_label": result["confidence_label"],
-            "summary": summarize(result["verdict"], evidence),
+            "summary": summarize(result["verdict"], evidence, searched=len(passages)),
             "evidence": evidence,
             "thresholds": {
                 "relevance": config.RELEVANCE_THRESHOLD,

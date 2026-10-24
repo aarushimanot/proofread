@@ -18,7 +18,7 @@ export default function History() {
 
   const tiles: [string, number | string][] = stats
     ? [
-        ["Reference passages", stats.passages],
+        ["Topics / passages", `${stats.collections} / ${stats.passages}`],
         ["Claims checked", stats.checks],
         ["Human reviews", stats.reviews],
         ["Reviewer agreed with model", stats.reviews ? `${Math.round((stats.reviews_agreed / stats.reviews) * 100)}%` : "–"],
@@ -53,6 +53,7 @@ export default function History() {
               <tr>
                 <th className="px-3 py-2">Time</th>
                 <th className="px-3 py-2">Claim</th>
+                <th className="px-3 py-2">Topic</th>
                 <th className="px-3 py-2">Verdict</th>
                 <th className="px-3 py-2">Confidence</th>
                 <th className="px-3 py-2">Top passage</th>
@@ -63,6 +64,7 @@ export default function History() {
                 <tr key={c.id}>
                   <td className="whitespace-nowrap px-3 py-2 text-slate-500">{new Date(c.timestamp).toLocaleString()}</td>
                   <td className="min-w-[14rem] px-3 py-2 text-slate-800">{c.claim}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-slate-600">{c.collection_name ?? "All topics"}</td>
                   <td className="px-3 py-2"><VerdictBadge verdict={c.verdict} size="sm" /></td>
                   <td className="whitespace-nowrap px-3 py-2 text-slate-600">
                     {c.confidence_label}{c.confidence !== null && ` (${Math.round(c.confidence * 100)}%)`}

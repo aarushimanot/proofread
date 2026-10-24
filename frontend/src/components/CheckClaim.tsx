@@ -1,6 +1,6 @@
 // The main three-step workflow: extract a claim, check it, review it.
 import { useEffect, useState } from "react";
-import { api, type Candidate, type Example, type VerifyResponse } from "../api";
+import { api, type Candidate, type Collection, type Example, type VerifyResponse } from "../api";
 import EvidenceCard from "./EvidenceCard";
 import ReviewPanel from "./ReviewPanel";
 import {
@@ -8,8 +8,17 @@ import {
   buttonPrimary, buttonSecondary, inputClass,
 } from "./ui";
 
-export default function CheckClaim() {
+const ALL_TOPICS = "__all__";
+
+interface Props {
+  collections: Collection[];
+  onManageSources: () => void;
+}
+
+export default function CheckClaim({ collections, onManageSources }: Props) {
   const [examples, setExamples] = useState<Example[]>([]);
+  // Which topic's passages to check against; ALL_TOPICS searches every topic.
+  const [topic, setTopic] = useState<string>("chandrayaan-3");
   const [post, setPost] = useState("");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [claim, setClaim] = useState("");
@@ -22,9 +31,19 @@ export default function CheckClaim() {
     api.examples().then(setExamples).catch(() => setExamples([]));
   }, []);
 
+  // If the chosen topic is deleted, fall back to "All topics".
+  useEffect(() => {
+    if (topic !== ALL_TOPICS && collections.length && !collections.some((c) => c.id === topic)) setTopic(ALL_TOPICS);
+  }, [collections, topic]);
+
+  const collectionId = topic === ALL_TOPICS ? null : topic;
+  const currentTopic = collections.find((c) => c.id === topic);
+  const topicIsEmpty = currentTopic !== undefined && currentTopic.passage_count === 0;
+
   function loadExample(id: string) {
     const ex = examples.find((e) => e.id === id);
     if (!ex) return;
+    setTopic(ex.collection_id);
     setPost(ex.post_text);
     setCandidates([]);
     setClaim("");
@@ -52,7 +71,7 @@ export default function CheckClaim() {
     setVerifying(true);
     setError("");
     try {
-      setResult(await api.verify(claim));
+      setResult(await api.verify(claim, collectionId));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -65,6 +84,31 @@ export default function CheckClaim() {
 
   return (
     <div className="space-y-6">
+      {/* ---------------- Topic ---------------- */}
+      <section className="flex flex-col gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 sm:flex-row sm:items-center">
+        <label htmlFor="topic" className="text-sm font-semibold text-indigo-900">Check against topic:</label>
+        <select
+          id="topic"
+          className={`${inputClass} sm:w-auto sm:min-w-[16rem]`}
+          value={topic}
+          onChange={(e) => { setTopic(e.target.value); setResult(null); }}
+        >
+          <option value={ALL_TOPICS}>All topics ({collections.reduce((n, c) => n + c.passage_count, 0)} passages)</option>
+          {collections.map((c) => (
+            <option key={c.id} value={c.id}>{c.name} ({c.passage_count} passages)</option>
+          ))}
+        </select>
+        <button type="button" onClick={onManageSources} className="text-left text-sm font-medium text-indigo-700 underline hover:text-indigo-900">
+          Add a topic or sources →
+        </button>
+      </section>
+      {topicIsEmpty && (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          This topic has no reference passages yet, so every claim will be “Insufficient evidence”. Add trusted sources
+          in the <button type="button" onClick={onManageSources} className="font-semibold underline">Lie-brary</button> first.
+        </p>
+      )}
+
       {/* ---------------- Step 1 ---------------- */}
       <Card step={1} title="Paste a post and pick the claim">
         <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -135,7 +179,7 @@ export default function CheckClaim() {
             className={inputClass}
             value={claim}
             maxLength={1000}
-            placeholder="e.g. Chandrayaan-3 landed near the Moon's south pole."
+            placeholder="Type or edit the single factual claim to check"
             onChange={(e) => { setClaim(e.target.value); setResult(null); }}
           />
         </label>
@@ -161,7 +205,11 @@ export default function CheckClaim() {
                   {result.confidence !== null && <span className="font-mono"> ({(result.confidence * 100).toFixed(0)}%)</span>}
                 </span>
               </div>
-              <p className="mt-2 text-sm text-slate-500">Claim: “{result.claim}”</p>
+              <p className="mt-2 text-sm text-slate-500">
+                Claim: “{result.claim}” · checked against{" "}
+                {result.collection_id ? collections.find((c) => c.id === result.collection_id)?.name ?? result.collection_id : "all topics"}{" "}
+                ({result.passages_searched} passages)
+              </p>
               <p className="mt-2 text-slate-800">{result.summary}</p>
               {result.verdict === "CONFLICTING" && (
                 <p className="mt-2 text-sm font-medium text-amber-800">Evidence disagrees. A human reviewer must decide.</p>
@@ -203,7 +251,7 @@ export default function CheckClaim() {
       {/* ---------------- Step 3 ---------------- */}
       <Card step={3} title="Human review">
         {result ? (
-          <ReviewPanel claim={result.claim} modelVerdict={result.verdict} />
+          <ReviewPanel claim={result.claim} modelVerdict={result.verdict} collectionId={result.collection_id} />
         ) : (
           <p className="text-sm text-slate-500">Check a claim first, then record your decision here.</p>
         )}

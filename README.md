@@ -31,7 +31,7 @@ Misleading "facts" spread fast on social media, often wrapped in emoji, hashtags
 2. see what trusted sources say about it, and
 3. record a human decision, without the tool pretending to know the truth.
 
-Proofread does this for one topic (the **Chandrayaan-3** Moon mission), with three rules it never breaks:
+Proofread does this for **any topic**. Reviewers create a topic (e.g. "Climate change", "Elections 2026") and add trusted sources to it: paste a link, paste text, or type a passage. Claims are then checked against that topic's passages. A built-in example topic, the **Chandrayaan-3** Moon mission, comes with 20 hand-written passages and 14 labelled test claims. It follows three rules it never breaks:
 
 - verdicts come **only** from the supplied passages, never from a model's world knowledge;
 - a claim is never called false just because nothing matched (that is **INSUFFICIENT EVIDENCE**);
@@ -45,7 +45,7 @@ flowchart LR
         UI1[Step 1: paste post / edit claim]
         UI2[Step 2: verdict + evidence cards]
         UI3[Step 3: human review]
-        LIB[Lie-brary tab]
+        LIB[Lie-brary tab<br/>topics + add sources]
     end
 
     subgraph Backend["Backend (FastAPI, :8000)"]
@@ -55,10 +55,12 @@ flowchart LR
         NUM[textutils.py<br/>number/date check]
         AG[aggregator.py<br/>verdict rules]
         EXP[explainer.py<br/>template explanations]
+        IMP[importer.py<br/>read link / split text]
     end
 
     JSON[/references.json + test_claims.json<br/>hand-curated seed files/]
-    DB[(SQLite: proofread.db<br/>passages · test_claims · reviews · checks)]
+    DB[(SQLite: proofread.db<br/>collections · passages · test_claims · reviews · checks)]
+    WEB[[Trusted web page<br/>e.g. Wikipedia]]
 
     JSON -- synced on startup --> DB
     UI1 -- POST /extract --> EX
@@ -72,7 +74,10 @@ flowchart LR
     EXP -- verdict + evidence --> UI2
     EXP -- each check logged --> DB
     UI3 -- POST /review --> DB
-    LIB -- GET /references --> DB
+    LIB -- GET/POST /references, /collections --> DB
+    LIB -- POST /import/url, /import/text --> IMP
+    WEB -. downloaded only when a curator imports it .-> IMP
+    IMP -- preview; curator ticks what to save --> LIB
 ```
 
 In the normal setup, **one server** (FastAPI on port 8000 locally, 7860 when deployed) serves both the web UI (the built React app) and the API, so the project runs as a single website. The Vite dev server on 5173 is only used in developer mode (`./start.sh dev`).
@@ -83,12 +88,13 @@ All runtime data lives in one SQLite file, `backend/data/proofread.db`. It is cr
 
 | table | contents | written by |
 |---|---|---|
-| `passages` | the 20 reference passages | synced from `data/references.json` on every startup |
-| `test_claims` | the 14 labelled test claims | synced from `data/test_claims.json` on every startup |
+| `collections` | topics, e.g. "Chandrayaan-3", "Eiffel Tower" | built-in topic from the code; others via the Lie-brary tab |
+| `passages` | reference passages, each belonging to one topic | built-in ones synced from `data/references.json` on every startup (`origin = seed`, read-only in the app); your own via the Lie-brary tab (`origin = user`, editable) |
+| `test_claims` | the 14 labelled test claims (Chandrayaan-3 topic) | synced from `data/test_claims.json` on every startup |
 | `reviews` | every human review (claim, model verdict, reviewer verdict, note, agreed, time) | `POST /review` |
 | `checks` | every claim checked (verdict, confidence, top passage, time) | `POST /verify` |
 
-The curated corpus stays in JSON on purpose: it is easy to edit and review by hand. To change a passage, edit the JSON and restart, and the database updates itself. Reviews and check history exist only in the database. Inspect them with `sqlite3 backend/data/proofread.db "select * from reviews"`, or in the app's **History** tab.
+The built-in corpus stays in JSON on purpose: it is easy to edit and review by hand. To change a built-in passage, edit the JSON and restart, and the database updates itself. The sync only touches built-in rows, so passages you add in the app are never overwritten. Your topics, your passages, reviews and check history exist only in the database. Inspect them with `sqlite3 backend/data/proofread.db "select * from reviews"`, or in the app's **History** tab.
 
 ### Project layout
 
@@ -98,7 +104,8 @@ proofread/
   Dockerfile            whole app in one container (used for deployment)
   backend/
     app/main.py         FastAPI app: API endpoints + serves the built UI
-    app/db.py           SQLite database (passages, test claims, reviews, check history)
+    app/db.py           SQLite database (topics, passages, test claims, reviews, check history)
+    app/importer.py     read a web page / pasted text and split it into passages
     app/pipeline.py     loads models once, wires the steps together (used by API and evaluate.py)
     app/extractor.py    claim extraction
     app/retriever.py    embeddings + cosine similarity
@@ -107,7 +114,7 @@ proofread/
     app/explainer.py    template explanations
     app/textutils.py    text cleaning, keyword overlap, number/date extraction
     app/config.py       every threshold in one place
-    data/references.json   20 reference passages (16 Chandrayaan-3 + 4 distractors), seed data
+    data/references.json   20 built-in passages (16 Chandrayaan-3 + 4 distractors), seed data
     data/test_claims.json  14 labelled test claims, seed data
     data/proofread.db      SQLite database, created automatically (not committed)
     download_models.py     pre-downloads the AI models (used by the Dockerfile)
@@ -117,6 +124,20 @@ proofread/
   frontend/             Vite + React + TypeScript + Tailwind
   README.md
 ```
+
+### Using Proofread for any topic
+
+1. Open the **Lie-brary** tab and click **+ New topic**. Give it a name and, optionally, a description.
+2. Add trusted sources to it in one of three ways:
+   - **Paste a link.** Proofread downloads the page and keeps its readable paragraphs. Wikipedia links use Wikipedia's own API for clean text. It splits the page into passages of about 3 sentences, never crossing a section, each titled "Page title: Section". Long pages are capped at 80 passages.
+   - **Paste text.** The same splitting, for text copied from anywhere (e.g. a PDF report).
+   - **Type one passage** by hand.
+3. Imports are only a **preview**. Untick anything that isn't a clear factual statement (opinions, quotes, menus), then click **Save**. A human always decides what enters the reference set.
+4. On **Check a claim**, choose the topic (or **All topics**) and check claims as usual.
+
+New passages are searchable immediately: their embeddings are computed on first use and cached. The internet is used only when a curator imports a link. Claims are never checked against the live web.
+
+**Safety of link imports:** only public `http(s)` addresses are fetched (localhost and private-network addresses are refused, including after redirects), with a 3 MB size limit and a 15-second timeout. Pages that block automatic downloads, or PDFs, should be copied and pasted instead.
 
 ## 3. Pipeline, step by step
 
@@ -221,10 +242,17 @@ To point the UI at a different backend URL, set `VITE_API_URL` in `frontend/.env
 | Method | Path | Body | Returns |
 |---|---|---|---|
 | GET | `/health` | | status, device, models |
-| GET | `/references` | | all passages |
-| GET | `/examples` | | test claims (for the "Load example" dropdown) |
+| GET | `/collections` | | all topics with passage counts |
+| POST | `/collections` | `{name, description}` | creates a topic |
+| DELETE | `/collections/{id}` | | deletes a user topic and its passages |
+| GET | `/references?collection_id=` | | passages (all, or one topic) |
+| POST | `/references` | `{collection_id, passages: [{title, source, url, date, text}]}` | saves passages to a topic |
+| PUT / DELETE | `/references/{id}` | `{title?, source?, url?, date?, text?}` | edits / deletes a user passage (built-in ones are read-only) |
+| POST | `/import/url` | `{url}` | preview of passages read from a web page (nothing saved) |
+| POST | `/import/text` | `{text, title, source, url, date}` | preview of passages split from text (nothing saved) |
+| GET | `/examples?collection_id=` | | test claims (for the "Load example" dropdown) |
 | POST | `/extract` | `{post_text}` | `{claim, candidates[]}` |
-| POST | `/verify` | `{claim}` | `{claim, verdict, confidence, confidence_label, summary, evidence[], thresholds, disclaimer}` |
+| POST | `/verify` | `{claim, collection_id}` (`null` = all topics) | `{claim, verdict, confidence, confidence_label, summary, evidence[], thresholds, disclaimer}` |
 | POST | `/review` | `{claim, model_verdict, reviewer_verdict, note}` | saves a review to the database |
 | GET | `/review-log` | | all reviews |
 | GET | `/history?limit=50` | | most recent checks |
@@ -361,16 +389,44 @@ Thresholds (0.45 / 0.6 / 0.35) were **not** changed. Because the test set guided
 
 Six claims is still far too few to estimate real-world accuracy.
 
+### Trying a brand-new topic (Eiffel Tower)
+
+To check that Proofread works beyond the built-in example, a new topic was created and the English Wikipedia article "Eiffel Tower" was imported through the app (80 passages, all kept). Ten claims were then written and checked:
+
+| claim | expected | got |
+|---|---|---|
+| The Eiffel Tower is located in Paris. | SUPPORTED | SUPPORTED |
+| The Eiffel Tower is located in London. | CONTRADICTED | CONTRADICTED |
+| The Eiffel Tower was built between 1887 and 1889. | SUPPORTED | SUPPORTED |
+| The Eiffel Tower was built for the 1889 World's Fair. | SUPPORTED | SUPPORTED |
+| The Eiffel Tower is 500 metres tall. | CONTRADICTED | CONTRADICTED |
+| The Eiffel Tower was painted pink in 2020. | INSUFFICIENT_EVIDENCE | INSUFFICIENT_EVIDENCE |
+| The Eiffel Tower was designed by Gustave Eiffel's company. | SUPPORTED | CONFLICTING |
+| The Eiffel Tower is 330 metres tall. | SUPPORTED | CONFLICTING |
+| The Eiffel Tower is the tallest building in the world. | CONTRADICTED | CONFLICTING |
+| (All topics) The Eiffel Tower is located in London. | CONTRADICTED | CONTRADICTED |
+
+The three CONFLICTING results are genuinely nuanced, and they go to a human as intended:
+- the design is credited both to "Eiffel's company" and to two engineers "working for" that company;
+- the article gives several heights from different years;
+- the tower *was* the world's tallest structure until 1930.
+
+This testing also exposed a bug: the event-alignment gate discarded the correct contradiction for "is **located** in London", because the passage says "is … in Paris" and never uses "located". State verbs (*locate, situate, base, call, know, remain, …*) are now excluded from the gate, since the gate exists to separate *events*. The Chandrayaan-3 evaluation was re-run afterwards and is unchanged at 13/14.
+
 ## 10. Limitations
 
-- **Small curated corpus.** 16 Chandrayaan-3 passages + 4 distractors. Anything else is INSUFFICIENT EVIDENCE by design.
+- **Only as good as its sources.** Proofread knows only the passages saved in a topic. Few or poor sources give few or poor verdicts, and anything not covered is INSUFFICIENT EVIDENCE by design.
+- **Imported pages are treated as true.** A link import keeps a page's paragraphs automatically, including any opinions, quotes or outdated facts on it. Curators must untick those, and importing an untrustworthy page makes Proofread confidently wrong.
+- **Accuracy on new topics is unmeasured.** The 14-claim evaluation covers only Chandrayaan-3; the Eiffel Tower check above is a 10-claim spot check, not an evaluation.
+- **The NLI model may still lean on background knowledge.** For "The Eiffel Tower is in London", even passages that never mention Paris were scored as contradicting, which suggests the model "knows" where the tower is. The verdict only counts passages that cleared the relevance threshold, but this leak can't be fully ruled out.
 - **NLI is weak on numbers, negation, look-alike names and multi-hop reasoning.** T06 shows the name problem. Claims that need two passages combined (e.g. "the rover operated for less than half a month") are not handled.
 - **Heuristics can misfire.** The number/date check uses dependency-parse anchors and can compare the wrong things (e.g. across missions). The event-alignment gate uses exact verb lemmas, so synonyms ("touched down" vs "landed") don't count as alignment. It may wrongly drop a genuine contradiction stated with a different verb.
 - **Threshold sensitivity.** Relevance 0.45, stance 0.6 and nudge 0.35 were set by hand; see the sweep above.
 - **Uncalibrated confidence.** NLI probabilities are often ~100% even when wrong.
 - **English only, one claim at a time.** Multi-claim posts get one claim; the rest are ignored unless the user picks them.
 - **Corpus trust depends on curation.** Passages are paraphrases. A wrong passage gives confidently wrong verdicts. Every passage must be checked against its source.
-- **No live updates.** Nothing is fetched online; new facts are invisible until a curator adds them.
+- **No live updates.** Claims are never checked against the live web; new facts are invisible until a curator adds them to a topic.
+- **Link import is basic.** It reads `<p>` paragraphs; pages built with JavaScript, paywalls and PDFs may import little or nothing (use "Paste text" instead).
 - **Extraction heuristics may pick the wrong sentence**, e.g. sarcasm, or a claim phrased as a question ("Did you know Chandrayaan-3 landed…?" is discarded as a question). The user can always edit the claim.
 - **Tiny, self-written test set** (see the caveat above).
 

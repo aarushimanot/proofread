@@ -66,8 +66,8 @@ def run(pipeline: ProofreadPipeline, tests: list[dict]) -> list[dict]:
     rows = []
     for t in tests:
         extracted = pipeline.extract(t["post_text"])["claim"]
-        gold = pipeline.verify(t["claim"])
-        e2e = pipeline.verify(extracted) if extracted else {"verdict": "INSUFFICIENT_EVIDENCE"}
+        gold = pipeline.verify(t["claim"], t["collection_id"])
+        e2e = pipeline.verify(extracted, t["collection_id"]) if extracted else {"verdict": "INSUFFICIENT_EVIDENCE"}
         top = gold["evidence"][0] if gold["evidence"] else None
         rows.append({
             "id": t["id"],
@@ -162,7 +162,7 @@ def sweep(pipeline: ProofreadPipeline, tests: list[dict]) -> str:
         config.RELEVANCE_THRESHOLD = threshold
         cells = []
         for k in (3, 5):
-            correct = sum(pipeline.verify(t["claim"], top_k=k)["verdict"] == t["expected_verdict"]
+            correct = sum(pipeline.verify(t["claim"], t["collection_id"], top_k=k)["verdict"] == t["expected_verdict"]
                           for t in tests)
             cells.append(f"{correct}/{len(tests)}")
         lines.append(f"| {threshold} | " + " | ".join(cells) + " |")

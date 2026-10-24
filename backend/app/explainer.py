@@ -63,8 +63,11 @@ def explain_passage(item: dict) -> str:
     return " ".join(parts)
 
 
-def summarize(verdict: str, evidence: list[dict]) -> str:
+def summarize(verdict: str, evidence: list[dict], searched: int | None = None) -> str:
     """One overall sentence summarising why the verdict was reached."""
+    if searched == 0:
+        return ("This topic has no reference passages yet, so nothing can be checked. Add trusted "
+                "sources in the Lie-brary tab. This does NOT mean the claim is false.")
     relevant = [e for e in evidence if e["relevant"]]
     supports = [e["title"] for e in relevant if e["stance"] == "supports"]
     contradicts = [e["title"] for e in relevant if e["stance"] == "contradicts"]

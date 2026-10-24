@@ -50,10 +50,18 @@ def clean_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+# Verbs that describe a state rather than an event ("is located in", "is known as").
+# The event-alignment gate is meant to tell different EVENTS apart, so these are ignored:
+# a passage saying "the tower is in Paris" should still be able to contradict
+# "the tower is located in London", even though it never uses the word "located".
+STATIVE_VERBS = {"be", "have", "do", "locate", "situate", "base", "sit", "stand", "lie",
+                 "call", "know", "consider", "regard", "remain", "seem"}
+
+
 def claim_predicates(doc) -> set:
-    """Main verbs of a claim ('landed' -> 'land'), ignoring be/have/do."""
+    """Main event verbs of a claim ('landed' -> 'land'), ignoring be/have/do and stative verbs."""
     return {normalise_key(t.lemma_) for t in doc
-            if t.pos_ == "VERB" and t.lemma_.lower() not in {"be", "have", "do"}}
+            if t.pos_ == "VERB" and t.lemma_.lower() not in STATIVE_VERBS}
 
 
 def lemma_keys(doc) -> set:
