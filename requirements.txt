@@ -1,13 +1,95 @@
 # Requirements for deploying the Streamlit app (Streamlit Community Cloud / Linux, CPU only).
 # For local development on a Mac use backend/requirements.txt instead (./start.sh does this for you).
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.5.1+cpu
-streamlit==1.40.1
-pyarrow==17.0.0
-spacy==3.8.3
+#
+# EVERY package is pinned to the exact version tested locally (pip freeze), so the cloud installs
+# the same set. With only the top-level packages pinned, the cloud's install crashed inside spaCy's
+# tokenizer (Tokenizer._flush_specials) while loading en_core_web_sm.
+# CPU-only PyTorch for Linux / Python 3.11, linked directly (an extra index would also serve its own old
+# copies of numpy, certifi etc., which the installer then prefers).
+torch @ https://download.pytorch.org/whl/cpu/torch-2.5.1%2Bcpu-cp311-cp311-linux_x86_64.whl
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
-sentence-transformers==3.3.1
-transformers==4.46.3
-sentencepiece==0.2.0
-protobuf==5.29.1
+altair==5.5.0
+annotated-types==0.8.0
+anyio==4.15.1
+attrs==26.1.0
+blinker==1.9.0
+blis==1.3.3
+cachetools==5.5.2
+catalogue==2.0.10
+certifi==2026.10.23
+charset-normalizer==3.5.2
+click==8.5.0
+cloudpathlib==0.26.0
+cloudpickle==3.1.2
+confection==0.1.5
+cymem==2.0.13
+filelock==4.2.4
+fsspec==2026.9.0
+gitdb==4.0.12
+GitPython==3.2.1
+h11==0.16.0
+hf-xet==1.7.0
+huggingface_hub==0.36.2
+idna==3.20
+Jinja2==3.1.6
+joblib==1.6.0
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+langcodes==3.5.1
+markdown-it-py==4.2.0
+MarkupSafe==3.0.4
+mdurl==0.1.2
+mpmath==1.3.0
+murmurhash==1.0.15
+narwhals==2.27.1
+networkx==3.6.1
 numpy==1.26.4
+packaging==24.2
+pandas==2.3.3
+pillow==11.3.0
+preshed==3.0.13
+protobuf==5.29.1
+pyarrow==17.0.0
+pydantic==2.10.3
+pydantic_core==2.27.1
+pydeck==0.9.3
+Pygments==2.21.0
+python-dateutil==3.0.0
+pytz==2026.5
+PyYAML==6.0.3
+referencing==0.37.0
+regex==2026.9.29
+requests==2.34.2
+rich==13.9.4
+rpds-py==2026.9.1
+safetensors==0.8.0
+scikit-learn==1.9.1
+scipy==1.17.1
+sentence-transformers==3.3.1
+sentencepiece==0.2.0
+shellingham==1.5.4
+six==1.17.0
+smart_open==7.7.1
+smmap==5.0.3
+spacy==3.8.3
+spacy-legacy==3.0.12
+spacy-loggers==1.0.5
+srsly==2.5.4
+streamlit==1.40.1
+sympy==1.13.1
+tenacity==9.2.1
+thinc==8.3.11
+threadpoolctl==3.7.0
+tokenizers==0.20.3
+toml==0.10.2
+tornado==6.6
+tqdm==4.70.1
+transformers==4.46.3
+typer==0.27.3
+typer-slim==0.24.0
+typing_extensions==4.16.0
+tzdata==2026.5
+urllib3==2.8.0
+wasabi==1.1.3
+weasel==0.4.3
+wrapt==2.5.1
